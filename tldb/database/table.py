@@ -27,3 +27,14 @@ class Connection:
 
 class Artist:
     _table_name = "artist"
+
+    def get(self, id=None):
+        with Connection() as conn:
+            table_query = r.db(DATABASE_NAME).table(self._table_name)
+
+            if id is None:
+                result = conn.run(table_query)
+            else:
+                result = conn.run(table_query.get(id))
+
+        return result
