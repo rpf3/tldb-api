@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 Flask = "*"
 flask = "*"
+flask-restx = "*"
 
 [dev-packages]
 
