@@ -1,19 +1,23 @@
 from rethinkdb import r
 
+from tldb.database import table
 from tldb.database.table import Artist, Connection
 
 
 def create_database():
-    with Connection() as conn:
-        if r.db_list().contains(conn._database_name).run(conn._conn):
-            r.db_drop(conn._database_name).run(conn._conn)
+    try:
+        with Connection() as conn:
+            if conn.run(r.db_list().contains(table.DATABASE_NAME)):
+                conn.run(r.db_drop(table.DATABASE_NAME))
 
-        r.db_create(conn._database_name).run(conn._conn)
+            conn.run(r.db_create(table.DATABASE_NAME))
+    except Exception as e:
+        print(e)
 
 
 def create_artist_table():
-    with Artist() as artist:
-        r.db(artist._database_name).table_create(artist._table_name).run(artist._conn)
+    with Connection() as conn:
+        conn.run(r.db(table.DATABASE_NAME).table_create(Artist._table_name))
 
 
 def create():
