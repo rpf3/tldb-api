@@ -12,3 +12,10 @@ if [[ ! -z $(command -v pre-commit) ]]; then
 
     pre-commit install
 fi
+
+if [[ -z $(command -v rethinkdb) ]]; then
+    source /etc/lsb-release && echo "deb https://download.rethinkdb.com/repository/ubuntu-$DISTRIB_CODENAME $DISTRIB_CODENAME main" | sudo tee /etc/apt/sources.list.d/rethinkdb.list
+    wget -qO- https://download.rethinkdb.com/repository/raw/pubkey.gpg | sudo apt-key add -
+    sudo apt update
+    sudo apt install -y rethinkdb
+fi
