@@ -7,6 +7,7 @@ name = "pypi"
 Flask = "*"
 flask = "*"
 flask-restx = "*"
+rethinkdb = "*"
 
 [dev-packages]
 

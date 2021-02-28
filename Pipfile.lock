@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ef5e5b29c5eee070a2cbf74bc17cd103f9642a396225803a8522206a505ffa69"
+            "sha256": "aa3e16314e6dec7071fa483e30bfb376e6ba4cd8f5a8a052b5a9353799dc4920"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -143,6 +143,14 @@
                 "sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798"
             ],
             "version": "==2021.1"
+        },
+        "rethinkdb": {
+            "hashes": [
+                "sha256:9f75a72bcd899ab0f6b0677873b89fba99c512bc7895eb5fbc1dc9a228b8aaee",
+                "sha256:f491e016be554d0ceb4b7bbea22930b1e33aa48d20217207bf72bb355f06834e"
+            ],
+            "index": "pypi",
+            "version": "==2.4.8"
         },
         "six": {
             "hashes": [
