@@ -9,3 +9,5 @@ artist = api.model(
         "name": fields.String(description="The name of the artist"),
     },
 )
+
+artists = api.model("Artists", {"artists": fields.List(fields.Nested(artist))})
