@@ -7,4 +7,12 @@ set -e
 
 cd "$(dirname "$0")/.."
 
+RETHINKDB_HOST="localhost"
+RETHINKDB_PORT="28015"
+
+rm -f .env
+
+echo "RETHINKDB_HOST=$RETHINKDB_HOST" > .env
+echo "RETHINKDB_PORT=$RETHINKDB_PORT" >> .env
+
 pipenv install --python "$(command -v python3)"
