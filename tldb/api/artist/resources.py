@@ -2,7 +2,7 @@ from flask_restx import Resource, marshal
 
 from tldb.api.artist import models
 from tldb.api.artist.models import api
-from tldb.database import table
+from tldb.database import tables
 
 
 @api.route("")
@@ -11,7 +11,7 @@ class Artists(Resource):
         """
         List all artists
         """
-        artist_table = table.Artist()
+        artist_table = tables.Artist()
 
         database_response = artist_table.get()
 
