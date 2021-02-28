@@ -1,1 +1,1 @@
-from tldb.api import app  # noqa: F401
+from tldb.app import app  # noqa: F401
