@@ -3,7 +3,7 @@ from flask_restx import Api
 
 from tldb.api import artist, track, tracklist
 
-blueprint = Blueprint("api", __name__)
+blueprint = Blueprint("api", __name__, url_prefix="/api/v1")
 api = Api(blueprint)
 
 api.add_namespace(artist.api)
