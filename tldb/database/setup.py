@@ -1,7 +1,7 @@
 from rethinkdb import r
 
 from tldb.database import tables
-from tldb.database.tables import Artist, Connection
+from tldb.database.tables import Artist, Connection, Track, Tracklist
 
 
 def create_database():
@@ -20,6 +20,18 @@ def create_artist_table():
         conn.run(r.db(tables.DATABASE_NAME).table_create(Artist._table_name))
 
 
+def create_track_table():
+    with Connection() as conn:
+        conn.run(r.db(tables.DATABASE_NAME).table_create(Track._table_name))
+
+
+def create_tracklist_table():
+    with Connection() as conn:
+        conn.run(r.db(tables.DATABASE_NAME).table_create(Tracklist._table_name))
+
+
 def create():
     create_database()
     create_artist_table()
+    create_track_table()
+    create_tracklist_table()

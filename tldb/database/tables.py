@@ -38,3 +38,33 @@ class Artist:
                 result = conn.run(table_query.get(id))
 
         return result
+
+
+class Track:
+    _table_name = "track"
+
+    def get(self, id=None):
+        with Connection() as conn:
+            table_query = r.db(DATABASE_NAME).table(self._table_name)
+
+            if id is None:
+                result = conn.run(table_query)
+            else:
+                result = conn.run(table_query.get(id))
+
+        return result
+
+
+class Tracklist:
+    _table_name = "tracklist"
+
+    def get(self, id=None):
+        with Connection() as conn:
+            table_query = r.db(DATABASE_NAME).table(self._table_name)
+
+            if id is None:
+                result = conn.run(table_query)
+            else:
+                result = conn.run(table_query.get(id))
+
+        return result
