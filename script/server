@@ -15,4 +15,9 @@ test -z "$FLASK_APP" &&
 test -z "$FLASK_ENV" &&
   export FLASK_ENV="development"
 
+# ensure rethinkdb is running as a daemon
+if [[ -z $(ps -eo 'tty,pid,comm' | grep ^? | grep rethinkdb) ]]; then
+  rethinkdb --daemon --http-port 8081
+fi
+
 pipenv run flask run
