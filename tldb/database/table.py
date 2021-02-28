@@ -2,10 +2,10 @@ import os
 
 from rethinkdb import r
 
+DATABASE_NAME = "tldb"
+
 
 class Connection:
-    _database_name = "tldb"
-
     def __init__(self):
         self._host = os.environ["RETHINKDB_HOST"]
         self._port = os.environ["RETHINKDB_PORT"]
@@ -19,6 +19,11 @@ class Connection:
         if self._conn is not None:
             self._conn.close()
 
+    def run(self, query):
+        result = query.run(self._conn)
 
-class Artist(Connection):
+        return result
+
+
+class Artist:
     _table_name = "artist"
