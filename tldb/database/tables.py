@@ -62,19 +62,19 @@ class Artist:
 
             conn.run(query)
 
-        artist_ids = [artist.get("id") for artist in artists]
+        artist_ids = self._get_artist_ids(artists)
 
         return artist_ids
 
     def validate(self, artists):
-        artist_ids = [artist.get("id") for artist in artists]
+        artist_ids = self._get_artist_ids(artists)
 
         with Connection() as conn:
             query = self.table.get_all(*artist_ids).pluck("id")
 
             result = conn.run(query)
 
-        result_ids = [artist.get("id") for artist in result]
+        result_ids = self._get_artist_ids(result)
 
         invalid_ids = []
 
@@ -84,6 +84,11 @@ class Artist:
 
         if len(invalid_ids) > 0:
             abort(400, "Invalid artist IDs", ids=invalid_ids)
+
+    def _get_artist_ids(self, artists):
+        artist_ids = {artist.get("id") for artist in artists}
+
+        return artist_ids
 
 
 class Track:

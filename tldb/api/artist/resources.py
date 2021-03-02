@@ -86,4 +86,4 @@ class Artist(Resource):
 
         database_response = self.table.update([api_model])
 
-        return database_response
+        return list(database_response)
