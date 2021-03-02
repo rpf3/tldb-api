@@ -54,3 +54,18 @@ class Artist(Resource):
         database_response = artist_table.get(id)
 
         return database_response
+
+    @api.expect(models.artist)
+    def put(self, id):
+        """
+        Update a single artist
+        """
+        artist_table = tables.Artist()
+
+        api_model = marshal(api.payload, models.artist)
+
+        del api_model["id"]
+
+        database_response = artist_table.update(id, api_model)
+
+        return database_response
