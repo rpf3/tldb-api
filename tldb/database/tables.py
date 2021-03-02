@@ -1,5 +1,6 @@
 import os
 
+from flask_restx import abort
 from rethinkdb import r
 
 DATABASE_NAME = "tldb"
@@ -54,6 +55,8 @@ class Artist:
         return artist_ids
 
     def update(self, artists):
+        self.validate(artists)
+
         with Connection() as conn:
             query = self.table.insert(artists, conflict="update")
 
@@ -62,6 +65,25 @@ class Artist:
         artist_ids = [artist.get("id") for artist in artists]
 
         return artist_ids
+
+    def validate(self, artists):
+        artist_ids = [artist.get("id") for artist in artists]
+
+        with Connection() as conn:
+            query = self.table.get_all(*artist_ids).pluck("id")
+
+            result = conn.run(query)
+
+        result_ids = [artist.get("id") for artist in result]
+
+        invalid_ids = []
+
+        for id in artist_ids:
+            if id not in result_ids:
+                invalid_ids.append(id)
+
+        if len(invalid_ids) > 0:
+            abort(400, "Invalid artist IDs", ids=invalid_ids)
 
 
 class Track:
