@@ -39,6 +39,16 @@ class Artist:
 
         return result
 
+    def insert(self, artists):
+        with Connection() as conn:
+            query = r.db(DATABASE_NAME).table(self._table_name).insert(artists)
+
+            result = conn.run(query)
+
+        artist_ids = result["generated_keys"]
+
+        return artist_ids
+
 
 class Track:
     _table_name = "track"

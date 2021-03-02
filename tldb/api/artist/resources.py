@@ -22,9 +22,16 @@ class Artists(Resource):
         """
         Create a new artist
         """
+        artist_table = tables.Artist()
+
         api_model = marshal(api.payload, models.artist)
 
-        return api_model
+        del api_model["id"]
+
+        database_response = artist_table.insert(api_model)
+        artist_id = database_response[0]
+
+        return artist_id
 
     @api.expect(models.artists)
     def patch(self):
