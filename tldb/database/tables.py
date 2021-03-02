@@ -40,12 +40,15 @@ class Artist:
         return result
 
     def insert(self, artists):
-        with Connection() as conn:
-            query = r.db(DATABASE_NAME).table(self._table_name).insert(artists)
+        if len(artists) > 0:
+            with Connection() as conn:
+                query = r.db(DATABASE_NAME).table(self._table_name).insert(artists)
 
-            result = conn.run(query)
+                result = conn.run(query)
 
-        artist_ids = result["generated_keys"]
+            artist_ids = result["generated_keys"]
+        else:
+            artist_ids = []
 
         return artist_ids
 
