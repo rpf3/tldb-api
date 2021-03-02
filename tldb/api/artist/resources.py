@@ -38,9 +38,27 @@ class Artists(Resource):
         """
         Create or update a set of artists
         """
+        artist_table = tables.Artist()
+
         api_model = marshal(api.payload, models.artists)
 
-        return api_model
+        insert_models = []
+        update_models = []
+
+        for artist in api_model.get("artists"):
+            if artist["id"] is None:
+                del artist["id"]
+
+                insert_models.append(artist)
+            else:
+                update_models.append(artist)
+
+        new_artist_ids = artist_table.insert(insert_models)
+        update_artist_ids = artist_table.update(update_models)
+
+        artist_ids = new_artist_ids + update_artist_ids
+
+        return artist_ids
 
 
 @api.route("/<string:id>")
@@ -64,8 +82,8 @@ class Artist(Resource):
 
         api_model = marshal(api.payload, models.artist)
 
-        del api_model["id"]
+        api_model["id"] = id
 
-        database_response = artist_table.update(id, api_model)
+        database_response = artist_table.update([api_model])
 
         return database_response
