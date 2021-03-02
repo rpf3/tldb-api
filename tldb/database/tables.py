@@ -55,14 +55,17 @@ class Artist:
         return artist_ids
 
     def update(self, artists):
-        self.validate(artists)
+        if len(artists) > 0:
+            self.validate(artists)
 
-        with Connection() as conn:
-            query = self.table.insert(artists, conflict="update")
+            with Connection() as conn:
+                query = self.table.insert(artists, conflict="update")
 
-            conn.run(query)
+                conn.run(query)
 
-        artist_ids = self._get_artist_ids(artists)
+            artist_ids = self._get_artist_ids(artists)
+        else:
+            artist_ids = []
 
         return artist_ids
 
