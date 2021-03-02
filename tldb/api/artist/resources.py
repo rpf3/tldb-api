@@ -41,3 +41,16 @@ class Artists(Resource):
         api_model = marshal(api.payload, models.artists)
 
         return api_model
+
+
+@api.route("/<string:id>")
+class Artist(Resource):
+    def get(self, id):
+        """
+        Get a single artist
+        """
+        artist_table = tables.Artist()
+
+        database_response = artist_table.get(id)
+
+        return database_response
