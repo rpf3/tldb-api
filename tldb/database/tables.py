@@ -28,21 +28,22 @@ class Connection:
 class Artist:
     _table_name = "artist"
 
+    def __init__(self):
+        self.table = r.db(DATABASE_NAME).table(self._table_name)
+
     def get(self, id=None):
         with Connection() as conn:
-            table_query = r.db(DATABASE_NAME).table(self._table_name)
-
             if id is None:
-                result = conn.run(table_query)
+                result = conn.run(self.table)
             else:
-                result = conn.run(table_query.get(id))
+                result = conn.run(self.table.get(id))
 
         return result
 
     def insert(self, artists):
         if len(artists) > 0:
             with Connection() as conn:
-                query = r.db(DATABASE_NAME).table(self._table_name).insert(artists)
+                query = self.table.insert(artists)
 
                 result = conn.run(query)
 
@@ -54,11 +55,7 @@ class Artist:
 
     def update(self, artists):
         with Connection() as conn:
-            query = (
-                r.db(DATABASE_NAME)
-                .table(self._table_name)
-                .insert(artists, conflict="update")
-            )
+            query = self.table.insert(artists, conflict="update")
 
             conn.run(query)
 
@@ -70,14 +67,15 @@ class Artist:
 class Track:
     _table_name = "track"
 
+    def __init__(self):
+        self.table = r.db(DATABASE_NAME).table(self._table_name)
+
     def get(self, id=None):
         with Connection() as conn:
-            table_query = r.db(DATABASE_NAME).table(self._table_name)
-
             if id is None:
-                result = conn.run(table_query)
+                result = conn.run(self.table)
             else:
-                result = conn.run(table_query.get(id))
+                result = conn.run(self.table.get(id))
 
         return result
 
@@ -85,13 +83,14 @@ class Track:
 class Tracklist:
     _table_name = "tracklist"
 
+    def __init__(self):
+        self.table = r.db(DATABASE_NAME).table(self._table_name)
+
     def get(self, id=None):
         with Connection() as conn:
-            table_query = r.db(DATABASE_NAME).table(self._table_name)
-
             if id is None:
-                result = conn.run(table_query)
+                result = conn.run(self.table)
             else:
-                result = conn.run(table_query.get(id))
+                result = conn.run(self.table.get(id))
 
         return result
