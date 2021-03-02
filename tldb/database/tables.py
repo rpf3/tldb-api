@@ -49,6 +49,14 @@ class Artist:
 
         return artist_ids
 
+    def update(self, id, artist):
+        with Connection() as conn:
+            query = r.db(DATABASE_NAME).table(self._table_name).get(id).update(artist)
+
+            conn.run(query)
+
+        return id
+
 
 class Track:
     _table_name = "track"
