@@ -7,13 +7,16 @@ from tldb.database import tables
 
 @api.route("")
 class Artists(Resource):
+    def __init__(self, res):
+        super().__init__(res)
+
+        self.table = tables.Artist()
+
     def get(self):
         """
         List all artists
         """
-        artist_table = tables.Artist()
-
-        database_response = artist_table.get()
+        database_response = self.table.get()
 
         return list(database_response)
 
@@ -22,13 +25,11 @@ class Artists(Resource):
         """
         Create a new artist
         """
-        artist_table = tables.Artist()
-
         api_model = marshal(api.payload, models.artist)
 
         del api_model["id"]
 
-        database_response = artist_table.insert(api_model)
+        database_response = self.table.insert(api_model)
         artist_id = database_response[0]
 
         return artist_id
@@ -38,8 +39,6 @@ class Artists(Resource):
         """
         Create or update a set of artists
         """
-        artist_table = tables.Artist()
-
         api_model = marshal(api.payload, models.artists)
 
         insert_models = []
@@ -53,8 +52,8 @@ class Artists(Resource):
             else:
                 update_models.append(artist)
 
-        new_artist_ids = artist_table.insert(insert_models)
-        update_artist_ids = artist_table.update(update_models)
+        new_artist_ids = self.table.insert(insert_models)
+        update_artist_ids = self.table.update(update_models)
 
         artist_ids = new_artist_ids + update_artist_ids
 
@@ -63,13 +62,16 @@ class Artists(Resource):
 
 @api.route("/<string:id>")
 class Artist(Resource):
+    def __init__(self, res):
+        super().__init__(res)
+
+        self.table = tables.Artist()
+
     def get(self, id):
         """
         Get a single artist
         """
-        artist_table = tables.Artist()
-
-        database_response = artist_table.get(id)
+        database_response = self.table.get(id)
 
         return database_response
 
@@ -78,12 +80,10 @@ class Artist(Resource):
         """
         Update a single artist
         """
-        artist_table = tables.Artist()
-
         api_model = marshal(api.payload, models.artist)
 
         api_model["id"] = id
 
-        database_response = artist_table.update([api_model])
+        database_response = self.table.update([api_model])
 
         return database_response

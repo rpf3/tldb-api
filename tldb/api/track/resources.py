@@ -6,12 +6,15 @@ from tldb.database import tables
 
 @api.route("")
 class Tracks(Resource):
+    def __init__(self, res):
+        super().__init__(res)
+
+        self.table = tables.Track()
+
     def get(self):
         """
         List all tracks
         """
-        track_table = tables.Track()
-
-        database_response = track_table.get()
+        database_response = self.table.get()
 
         return list(database_response)
