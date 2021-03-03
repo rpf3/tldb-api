@@ -65,7 +65,7 @@ class Artist:
 
                 conn.run(query)
 
-            artist_ids = utils.get_ids(artists)
+            artist_ids = list(utils.get_ids(artists))
         else:
             artist_ids = []
 
@@ -128,7 +128,7 @@ class Track:
 
                 conn.run(query)
 
-            track_ids = utils.get_ids(tracks)
+            track_ids = list(utils.get_ids(tracks))
         else:
             track_ids = []
 
