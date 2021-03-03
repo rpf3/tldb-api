@@ -124,6 +124,8 @@ class Track:
 
     def update(self, tracks):
         if len(tracks) > 0:
+            self.validate(tracks)
+
             with Connection() as conn:
                 query = self.table.insert(tracks, conflict="update")
 
@@ -134,6 +136,25 @@ class Track:
             track_ids = []
 
         return track_ids
+
+    def validate(self, tracks):
+        track_ids = self._get_track_ids(tracks)
+
+        with Connection() as conn:
+            query = self.table.get_all(*track_ids).pluck("id")
+
+            result = conn.run(query)
+
+        result_ids = self._get_track_ids(result)
+
+        invalid_ids = []
+
+        for id in track_ids:
+            if id not in result_ids:
+                invalid_ids.append(id)
+
+        if len(invalid_ids) > 0:
+            abort(400, "Invalid track IDs", ids=invalid_ids)
 
     def _get_track_ids(self, tracks):
         track_ids = {track.get("id") for track in tracks}
