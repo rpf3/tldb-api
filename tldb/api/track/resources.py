@@ -1,5 +1,6 @@
-from flask_restx import Resource
+from flask_restx import Resource, marshal
 
+from tldb.api.track import models
 from tldb.api.track.models import api
 from tldb.database import tables
 
@@ -18,3 +19,17 @@ class Tracks(Resource):
         database_response = self.table.get()
 
         return list(database_response)
+
+    @api.expect(models.track)
+    def post(self):
+        """
+        Create a new track
+        """
+        api_model = marshal(api.payload, models.track)
+
+        del api_model["id"]
+
+        database_response = self.table.insert(api_model)
+        track_id = database_response[0]
+
+        return track_id
