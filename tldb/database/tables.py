@@ -3,6 +3,8 @@ import os
 from flask_restx import abort
 from rethinkdb import r
 
+from tldb.database import utils
+
 DATABASE_NAME = "tldb"
 
 
@@ -63,21 +65,21 @@ class Artist:
 
                 conn.run(query)
 
-            artist_ids = self._get_artist_ids(artists)
+            artist_ids = utils.get_ids(artists)
         else:
             artist_ids = []
 
         return artist_ids
 
     def validate(self, artists):
-        artist_ids = self._get_artist_ids(artists)
+        artist_ids = utils.get_ids(artists)
 
         with Connection() as conn:
             query = self.table.get_all(*artist_ids).pluck("id")
 
             result = conn.run(query)
 
-        result_ids = self._get_artist_ids(result)
+        result_ids = utils.get_ids(result)
 
         invalid_ids = []
 
@@ -87,11 +89,6 @@ class Artist:
 
         if len(invalid_ids) > 0:
             abort(400, "Invalid artist IDs", ids=invalid_ids)
-
-    def _get_artist_ids(self, artists):
-        artist_ids = {artist.get("id") for artist in artists}
-
-        return artist_ids
 
 
 class Track:
@@ -131,21 +128,21 @@ class Track:
 
                 conn.run(query)
 
-            track_ids = self._get_track_ids(tracks)
+            track_ids = utils.get_ids(tracks)
         else:
             track_ids = []
 
         return track_ids
 
     def validate(self, tracks):
-        track_ids = self._get_track_ids(tracks)
+        track_ids = utils.get_ids(tracks)
 
         with Connection() as conn:
             query = self.table.get_all(*track_ids).pluck("id")
 
             result = conn.run(query)
 
-        result_ids = self._get_track_ids(result)
+        result_ids = utils.get_ids(result)
 
         invalid_ids = []
 
@@ -155,11 +152,6 @@ class Track:
 
         if len(invalid_ids) > 0:
             abort(400, "Invalid track IDs", ids=invalid_ids)
-
-    def _get_track_ids(self, tracks):
-        track_ids = {track.get("id") for track in tracks}
-
-        return track_ids
 
 
 class Tracklist:
