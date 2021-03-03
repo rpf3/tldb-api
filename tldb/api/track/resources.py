@@ -33,3 +33,19 @@ class Tracks(Resource):
         track_id = database_response[0]
 
         return track_id
+
+
+@api.route("/<string:id>")
+class Track(Resource):
+    def __init__(self, res):
+        super().__init__(res)
+
+        self.table = tables.Track()
+
+    def get(self, id):
+        """
+        Get a single track
+        """
+        database_response = self.table.get(id)
+
+        return database_response
