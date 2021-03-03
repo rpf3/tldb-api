@@ -10,3 +10,5 @@ track = api.model(
         "artistId": fields.String(description="The ID of the artist"),
     },
 )
+
+tracks = api.model("Tracks", {"tracks": fields.List(fields.Nested(track))})
