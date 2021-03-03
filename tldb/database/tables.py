@@ -109,6 +109,19 @@ class Track:
 
         return result
 
+    def insert(self, tracks):
+        if len(tracks) > 0:
+            with Connection() as conn:
+                query = self.table.insert(tracks)
+
+                result = conn.run(query)
+
+            track_ids = result["generated_keys"]
+        else:
+            track_ids = []
+
+        return track_ids
+
 
 class Tracklist:
     _table_name = "tracklist"
