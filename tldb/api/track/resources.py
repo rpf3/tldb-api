@@ -49,3 +49,16 @@ class Track(Resource):
         database_response = self.table.get(id)
 
         return database_response
+
+    @api.expect(models.track)
+    def put(self, id):
+        """
+        Update a single track
+        """
+        api_model = marshal(api.payload, models.track)
+
+        api_model["id"] = id
+
+        database_response = self.table.update([api_model])
+
+        return list(database_response)

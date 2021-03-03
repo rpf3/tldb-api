@@ -122,6 +122,24 @@ class Track:
 
         return track_ids
 
+    def update(self, tracks):
+        if len(tracks) > 0:
+            with Connection() as conn:
+                query = self.table.insert(tracks, conflict="update")
+
+                conn.run(query)
+
+            track_ids = self._get_track_ids(tracks)
+        else:
+            track_ids = []
+
+        return track_ids
+
+    def _get_track_ids(self, tracks):
+        track_ids = {track.get("id") for track in tracks}
+
+        return track_ids
+
 
 class Tracklist:
     _table_name = "tracklist"
