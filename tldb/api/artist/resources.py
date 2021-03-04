@@ -2,7 +2,7 @@ from flask_restx import Resource, marshal
 
 from tldb.api.artist import models
 from tldb.api.artist.models import api
-from tldb.database import tables
+from tldb.database.artist import Artist as ArtistTable
 
 
 @api.route("")
@@ -10,7 +10,7 @@ class Artists(Resource):
     def __init__(self, res):
         super().__init__(res)
 
-        self.table = tables.Artist()
+        self.table = ArtistTable()
 
     def get(self):
         """
@@ -65,7 +65,7 @@ class Artist(Resource):
     def __init__(self, res):
         super().__init__(res)
 
-        self.table = tables.Artist()
+        self.table = ArtistTable()
 
     def get(self, id):
         """

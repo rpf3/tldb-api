@@ -1,7 +1,7 @@
 from flask_restx import Resource
 
 from tldb.api.tracklist.models import api
-from tldb.database import tables
+from tldb.database.tracklist import Tracklist as TracklistTable
 
 
 @api.route("")
@@ -9,7 +9,7 @@ class Tracklists(Resource):
     def __init__(self, res):
         super().__init__(res)
 
-        self.table = tables.Tracklist()
+        self.table = TracklistTable()
 
     def get(self):
         """

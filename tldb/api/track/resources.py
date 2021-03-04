@@ -2,7 +2,7 @@ from flask_restx import Resource, marshal
 
 from tldb.api.track import models
 from tldb.api.track.models import api
-from tldb.database import tables
+from tldb.database.track import Track as TrackTable
 
 
 @api.route("")
@@ -10,7 +10,7 @@ class Tracks(Resource):
     def __init__(self, res):
         super().__init__(res)
 
-        self.table = tables.Track()
+        self.table = TrackTable()
 
     def get(self):
         """
@@ -65,7 +65,7 @@ class Track(Resource):
     def __init__(self, res):
         super().__init__(res)
 
-        self.table = tables.Track()
+        self.table = TrackTable()
 
     def get(self, id):
         """
