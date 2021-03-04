@@ -7,5 +7,3 @@ set -e
 cd "$(dirname "$0")/.."
 
 script/bootstrap
-
-pipenv run python3 ./script/update_database.py

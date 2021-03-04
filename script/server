@@ -20,4 +20,6 @@ if [[ -z $(ps -eo 'tty,pid,comm' | grep ^? | grep rethinkdb) ]]; then
   rethinkdb --daemon --http-port 8081
 fi
 
+pipenv run python3 ./script/update_database.py
+
 pipenv run flask run
