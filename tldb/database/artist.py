@@ -4,12 +4,12 @@ from rethinkdb import r
 from tldb.database import utils
 from tldb.database.connection import DATABASE_NAME, Connection
 
+TABLE_NAME = "artist"
+
 
 class Artist:
-    _table_name = "artist"
-
     def __init__(self):
-        self.table = r.db(DATABASE_NAME).table(self._table_name)
+        self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
     def get(self, id=None):
         with Connection() as conn:
