@@ -12,32 +12,32 @@ class Track:
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
     def get(self, id=None, verbose=False):
+        if id is None:
+            track_query = self.table
+        else:
+            track_query = self.table.get(id)
+
+        if verbose is True:
+            final_query = track_query.merge(
+                lambda track: {
+                    "artist": r.db(DATABASE_NAME)
+                    .table(artist.TABLE_NAME)
+                    .get(track["artistId"])
+                }
+            )
+        else:
+            final_query = track_query
+
         with Connection() as conn:
-            if id is None:
-                track_query = self.table
-            else:
-                track_query = self.table.get(id)
-
-            if verbose is True:
-                final_query = track_query.merge(
-                    lambda track: {
-                        "artist": r.db(DATABASE_NAME)
-                        .table(artist.TABLE_NAME)
-                        .get(track["artistId"])
-                    }
-                )
-            else:
-                final_query = track_query
-
             result = conn.run(final_query)
 
         return result
 
     def insert(self, tracks):
         if len(tracks) > 0:
-            with Connection() as conn:
-                query = self.table.insert(tracks)
+            query = self.table.insert(tracks)
 
+            with Connection() as conn:
                 result = conn.run(query)
 
             track_ids = result["generated_keys"]
@@ -50,9 +50,9 @@ class Track:
         if len(tracks) > 0:
             self.validate(tracks)
 
-            with Connection() as conn:
-                query = self.table.insert(tracks, conflict="update")
+            query = self.table.insert(tracks, conflict="update")
 
+            with Connection() as conn:
                 conn.run(query)
 
             track_ids = list(utils.get_ids(tracks))
@@ -64,9 +64,9 @@ class Track:
     def validate(self, tracks):
         track_ids = utils.get_ids(tracks)
 
-        with Connection() as conn:
-            query = self.table.get_all(*track_ids).pluck("id")
+        query = self.table.get_all(*track_ids).pluck("id")
 
+        with Connection() as conn:
             result = conn.run(query)
 
         result_ids = utils.get_ids(result)

@@ -10,10 +10,12 @@ class Tracklist:
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
     def get(self, id=None):
+        if id is None:
+            query = self.table
+        else:
+            query = self.table.get(id)
+
         with Connection() as conn:
-            if id is None:
-                result = conn.run(self.table)
-            else:
-                result = conn.run(self.table.get(id))
+            result = conn.run(query)
 
         return result
