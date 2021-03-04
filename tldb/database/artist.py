@@ -12,19 +12,21 @@ class Artist:
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
     def get(self, id=None):
+        if id is None:
+            query = self.table
+        else:
+            query = self.table.get(id)
+
         with Connection() as conn:
-            if id is None:
-                result = conn.run(self.table)
-            else:
-                result = conn.run(self.table.get(id))
+            result = conn.run(query)
 
         return result
 
     def insert(self, artists):
         if len(artists) > 0:
-            with Connection() as conn:
-                query = self.table.insert(artists)
+            query = self.table.insert(artists)
 
+            with Connection() as conn:
                 result = conn.run(query)
 
             artist_ids = result["generated_keys"]
@@ -37,9 +39,9 @@ class Artist:
         if len(artists) > 0:
             self.validate(artists)
 
-            with Connection() as conn:
-                query = self.table.insert(artists, conflict="update")
+            query = self.table.insert(artists, conflict="update")
 
+            with Connection() as conn:
                 conn.run(query)
 
             artist_ids = list(utils.get_ids(artists))
@@ -51,9 +53,9 @@ class Artist:
     def validate(self, artists):
         artist_ids = utils.get_ids(artists)
 
-        with Connection() as conn:
-            query = self.table.get_all(*artist_ids).pluck("id")
+        query = self.table.get_all(*artist_ids).pluck("id")
 
+        with Connection() as conn:
             result = conn.run(query)
 
         result_ids = utils.get_ids(result)
