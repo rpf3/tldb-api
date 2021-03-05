@@ -49,3 +49,16 @@ class Tracklist(Resource):
         database_response = self.table.get(id)
 
         return database_response
+
+    @api.expect(models.tracklist)
+    def put(self, id):
+        """
+        Update a single tracklist
+        """
+        api_model = marshal(api.payload, models.tracklist)
+
+        api_model["id"] = id
+
+        database_response = self.table.update([api_model])
+
+        return list(database_response)
