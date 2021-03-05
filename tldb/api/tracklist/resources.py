@@ -33,3 +33,19 @@ class Tracklists(Resource):
         tracklist_id = database_response[0]
 
         return tracklist_id
+
+
+@api.route("/<string:id>")
+class Tracklist(Resource):
+    def __init__(self, res):
+        super().__init__(res)
+
+        self.table = TracklistTable()
+
+    def get(self, id):
+        """
+        Get a single tracklist
+        """
+        database_response = self.table.get(id)
+
+        return database_response
