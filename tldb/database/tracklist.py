@@ -28,10 +28,18 @@ class Tracklist:
                 }
             ).merge(
                 lambda tracklist: {
-                    "tracks": r.expr(tracklist["tracks"]).merge(
+                    "tracks": r.expr(tracklist["tracks"])
+                    .merge(
                         lambda track: r.db(DATABASE_NAME)
                         .table(TRACK_TABLE_NAME)
                         .get(track["id"])
+                    )
+                    .merge(
+                        lambda track: {
+                            "artist": r.db(DATABASE_NAME)
+                            .table(ARTIST_TABLE_NAME)
+                            .get(track["artistId"])
+                        }
                     )
                 }
             )
