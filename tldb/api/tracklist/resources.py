@@ -34,6 +34,31 @@ class Tracklists(Resource):
 
         return tracklist_id
 
+    @api.expect(models.tracklists)
+    def patch(self):
+        """
+        Create or update a set of tracklists
+        """
+        api_model = marshal(api.payload, models.tracklists)
+
+        insert_models = []
+        update_models = []
+
+        for tracklist in api_model.get("tracklists"):
+            if tracklist["id"] is None:
+                del tracklist["id"]
+
+                insert_models.append(tracklist)
+            else:
+                update_models.append(tracklist)
+
+        new_tracklist_ids = self.table.insert(insert_models)
+        update_tracklist_ids = self.table.update(update_models)
+
+        tracklist_ids = new_tracklist_ids + update_tracklist_ids
+
+        return tracklist_ids
+
 
 @api.route("/<string:id>")
 class Tracklist(Resource):
