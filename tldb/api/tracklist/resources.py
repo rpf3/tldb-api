@@ -1,3 +1,4 @@
+from flask import request
 from flask_restx import Resource, marshal
 
 from tldb.api.tracklist import models
@@ -71,7 +72,10 @@ class Tracklist(Resource):
         """
         Get a single tracklist
         """
-        database_response = self.table.get(id)
+        if request.args.get("verbose") == "1":
+            database_response = self.table.get(id, True)
+        else:
+            database_response = self.table.get(id)
 
         return database_response
 
