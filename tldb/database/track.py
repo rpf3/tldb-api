@@ -69,6 +69,22 @@ class Track:
 
         return self.get_all(track_ids)
 
+    def upsert(self, tracks):
+        new_tracks = []
+        existing_tracks = []
+
+        for track in tracks:
+            if track["id"] is None:
+                del track["id"]
+
+                new_tracks.append(track)
+            else:
+                existing_tracks.append(track)
+
+        result = self.insert(new_tracks) + self.update(existing_tracks)
+
+        return result
+
     def validate(self, tracks):
         track_ids = utils.get_ids(tracks)
 

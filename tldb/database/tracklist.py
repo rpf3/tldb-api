@@ -87,6 +87,22 @@ class Tracklist:
 
         return self.get_all(tracklist_ids)
 
+    def upsert(self, tracklists):
+        new_tracklists = []
+        existing_tracklists = []
+
+        for tracklist in tracklists:
+            if tracklist["id"] is None:
+                del tracklist["id"]
+
+                new_tracklists.append(tracklist)
+            else:
+                existing_tracklists.append(tracklist)
+
+        result = self.insert(new_tracklists) + self.update(existing_tracklists)
+
+        return result
+
     def validate(self, tracklists):
         tracklist_ids = utils.get_ids(tracklists)
 

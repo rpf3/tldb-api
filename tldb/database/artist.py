@@ -58,6 +58,22 @@ class Artist:
 
         return self.get_all(artist_ids)
 
+    def upsert(self, artists):
+        new_artists = []
+        existing_artists = []
+
+        for artist in artists:
+            if artist["id"] is None:
+                del artist["id"]
+
+                new_artists.append(artist)
+            else:
+                existing_artists.append(artist)
+
+        result = self.insert(new_artists) + self.update(existing_artists)
+
+        return result
+
     def validate(self, artists):
         artist_ids = utils.get_ids(artists)
 

@@ -42,23 +42,9 @@ class Tracks(Resource):
         """
         api_model = marshal(api.payload, models.tracks)
 
-        insert_models = []
-        update_models = []
+        database_response = self.table.upsert(api_model.get("tracks"))
 
-        for track in api_model.get("tracks"):
-            if track["id"] is None:
-                del track["id"]
-
-                insert_models.append(track)
-            else:
-                update_models.append(track)
-
-        new_track_ids = self.table.insert(insert_models)
-        update_track_ids = self.table.update(update_models)
-
-        track_ids = new_track_ids + update_track_ids
-
-        return track_ids
+        return database_response
 
 
 @api.route("/<string:id>")
