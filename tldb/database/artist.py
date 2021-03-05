@@ -5,6 +5,7 @@ from tldb.database import utils
 from tldb.database.connection import DATABASE_NAME, Connection
 
 TABLE_NAME = "artist"
+DEFAULT_LIMIT = 10
 
 
 class Artist:
@@ -13,7 +14,7 @@ class Artist:
 
     def get(self, id=None):
         if id is None:
-            query = self.table
+            query = self.table.limit(DEFAULT_LIMIT)
         else:
             query = self.table.get(id)
 
