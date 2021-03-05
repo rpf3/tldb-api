@@ -1,7 +1,7 @@
 from flask_restx import abort
 from rethinkdb import r
 
-from tldb.database import utils
+from tldb.database import artist, utils
 from tldb.database.connection import DATABASE_NAME, Connection
 
 TABLE_NAME = "tracklist"
@@ -11,14 +11,25 @@ class Tracklist:
     def __init__(self):
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
-    def get(self, id=None):
+    def get(self, id=None, verbose=False):
         if id is None:
             query = self.table
         else:
             query = self.table.get(id)
 
+        if verbose is True:
+            final_query = query.merge(
+                lambda tracklist: {
+                    "artist": r.db(DATABASE_NAME)
+                    .table(artist.TABLE_NAME)
+                    .get(tracklist["artistId"])
+                }
+            )
+        else:
+            final_query = query
+
         with Connection() as conn:
-            result = conn.run(query)
+            result = conn.run(final_query)
 
         return result
 
