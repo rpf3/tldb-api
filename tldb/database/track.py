@@ -33,6 +33,14 @@ class Track:
 
         return result
 
+    def get_all(self, ids):
+        query = self.table.get_all(*ids)
+
+        with Connection() as conn:
+            result = conn.run(query)
+
+        return list(result)
+
     def insert(self, tracks):
         if len(tracks) > 0:
             query = self.table.insert(tracks)
@@ -44,7 +52,7 @@ class Track:
         else:
             track_ids = []
 
-        return track_ids
+        return self.get_all(track_ids)
 
     def update(self, tracks):
         if len(tracks) > 0:
@@ -55,11 +63,11 @@ class Track:
             with Connection() as conn:
                 conn.run(query)
 
-            track_ids = list(utils.get_ids(tracks))
+            track_ids = utils.get_ids(tracks)
         else:
             track_ids = []
 
-        return track_ids
+        return self.get_all(track_ids)
 
     def validate(self, tracks):
         track_ids = utils.get_ids(tracks)

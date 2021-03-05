@@ -22,6 +22,14 @@ class Artist:
 
         return result
 
+    def get_all(self, ids):
+        query = self.table.get_all(*ids)
+
+        with Connection() as conn:
+            result = conn.run(query)
+
+        return list(result)
+
     def insert(self, artists):
         if len(artists) > 0:
             query = self.table.insert(artists)
@@ -33,7 +41,7 @@ class Artist:
         else:
             artist_ids = []
 
-        return artist_ids
+        return self.get_all(artist_ids)
 
     def update(self, artists):
         if len(artists) > 0:
@@ -44,11 +52,11 @@ class Artist:
             with Connection() as conn:
                 conn.run(query)
 
-            artist_ids = list(utils.get_ids(artists))
+            artist_ids = utils.get_ids(artists)
         else:
             artist_ids = []
 
-        return artist_ids
+        return self.get_all(artist_ids)
 
     def validate(self, artists):
         artist_ids = utils.get_ids(artists)
