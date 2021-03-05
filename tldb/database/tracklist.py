@@ -1,8 +1,10 @@
 from flask_restx import abort
 from rethinkdb import r
 
-from tldb.database import artist, utils
+from tldb.database import utils
+from tldb.database.artist import TABLE_NAME as ARTIST_TABLE_NAME
 from tldb.database.connection import DATABASE_NAME, Connection
+from tldb.database.track import TABLE_NAME as TRACK_TABLE_NAME
 
 TABLE_NAME = "tracklist"
 
@@ -21,8 +23,16 @@ class Tracklist:
             final_query = query.merge(
                 lambda tracklist: {
                     "artist": r.db(DATABASE_NAME)
-                    .table(artist.TABLE_NAME)
+                    .table(ARTIST_TABLE_NAME)
                     .get(tracklist["artistId"])
+                }
+            ).merge(
+                lambda tracklist: {
+                    "tracks": r.expr(tracklist["tracks"]).merge(
+                        lambda track: r.db(DATABASE_NAME)
+                        .table(TRACK_TABLE_NAME)
+                        .get(track["id"])
+                    )
                 }
             )
         else:
