@@ -19,3 +19,24 @@ class Tracklist:
             result = conn.run(query)
 
         return result
+
+    def get_all(self, ids):
+        query = self.table.get_all(*ids)
+
+        with Connection() as conn:
+            result = conn.run(query)
+
+        return list(result)
+
+    def insert(self, tracklists):
+        if len(tracklists) > 0:
+            query = self.table.insert(tracklists)
+
+            with Connection() as conn:
+                result = conn.run(query)
+
+            tracklist_ids = result["generated_keys"]
+        else:
+            tracklist_ids = []
+
+        return self.get_all(tracklist_ids)
