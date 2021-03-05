@@ -41,23 +41,9 @@ class Artists(Resource):
         """
         api_model = marshal(api.payload, models.artists)
 
-        insert_models = []
-        update_models = []
+        database_response = self.table.upsert(api_model.get("artists"))
 
-        for artist in api_model.get("artists"):
-            if artist["id"] is None:
-                del artist["id"]
-
-                insert_models.append(artist)
-            else:
-                update_models.append(artist)
-
-        new_artist_ids = self.table.insert(insert_models)
-        update_artist_ids = self.table.update(update_models)
-
-        artist_ids = new_artist_ids + update_artist_ids
-
-        return artist_ids
+        return database_response
 
 
 @api.route("/<string:id>")
