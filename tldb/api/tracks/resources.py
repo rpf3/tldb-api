@@ -1,8 +1,8 @@
 from flask import request
 from flask_restx import Resource, marshal
 
-from tldb.api.track import models
-from tldb.api.track.models import api
+from tldb.api.tracks import models
+from tldb.api.tracks.models import api
 from tldb.database.track import Track as TrackTable
 
 

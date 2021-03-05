@@ -1,7 +1,7 @@
 from flask_restx import Resource, marshal
 
-from tldb.api.artist import models
-from tldb.api.artist.models import api
+from tldb.api.artists import models
+from tldb.api.artists.models import api
 from tldb.database.artist import Artist as ArtistTable
 
 
