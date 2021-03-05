@@ -5,6 +5,7 @@ from tldb.database import artist, utils
 from tldb.database.connection import DATABASE_NAME, Connection
 
 TABLE_NAME = "track"
+DEFAULT_LIMIT = 10
 
 
 class Track:
@@ -13,7 +14,7 @@ class Track:
 
     def get(self, id=None, verbose=False):
         if id is None:
-            track_query = self.table
+            track_query = self.table.limit(DEFAULT_LIMIT)
         else:
             track_query = self.table.get(id)
 
