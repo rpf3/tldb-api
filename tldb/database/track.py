@@ -74,12 +74,13 @@ class Track:
         existing_tracks = []
 
         for track in tracks:
-            if track["id"] is None:
-                del track["id"]
+            if track.get("id") is not None:
+                existing_tracks.append(track)
+            else:
+                if "id" in track:
+                    del track["id"]
 
                 new_tracks.append(track)
-            else:
-                existing_tracks.append(track)
 
         result = self.insert(new_tracks) + self.update(existing_tracks)
 

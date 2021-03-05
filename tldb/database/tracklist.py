@@ -92,12 +92,13 @@ class Tracklist:
         existing_tracklists = []
 
         for tracklist in tracklists:
-            if tracklist["id"] is None:
-                del tracklist["id"]
+            if tracklist.get("id") is not None:
+                existing_tracklists.append(tracklist)
+            else:
+                if "id" in tracklist:
+                    del tracklist["id"]
 
                 new_tracklists.append(tracklist)
-            else:
-                existing_tracklists.append(tracklist)
 
         result = self.insert(new_tracklists) + self.update(existing_tracklists)
 
