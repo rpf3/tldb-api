@@ -11,3 +11,7 @@ tracklist = api.model(
         "tracks": fields.List(fields.String(description="The ID of the track")),
     },
 )
+
+tracklists = api.model(
+    "Tracklists", {"tracklists": fields.List(fields.Nested(tracklist))}
+)
