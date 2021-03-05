@@ -63,12 +63,13 @@ class Artist:
         existing_artists = []
 
         for artist in artists:
-            if artist["id"] is None:
-                del artist["id"]
+            if artist.get("id") is not None:
+                existing_artists.append(artist)
+            else:
+                if "id" in artist:
+                    del artist["id"]
 
                 new_artists.append(artist)
-            else:
-                existing_artists.append(artist)
 
         result = self.insert(new_artists) + self.update(existing_artists)
 
