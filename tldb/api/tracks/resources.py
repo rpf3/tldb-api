@@ -17,7 +17,9 @@ class Tracks(Resource):
         """
         List all tracks
         """
-        database_response = self.table.get()
+        verbose = request.args.get("verbose") == "1"
+
+        database_response = self.table.get(verbose=verbose)
 
         return list(database_response)
 
@@ -58,10 +60,9 @@ class Track(Resource):
         """
         Get a single track
         """
-        if request.args.get("verbose") == "1":
-            database_response = self.table.get(id, True)
-        else:
-            database_response = self.table.get(id)
+        verbose = request.args.get("verbose") == "1"
+
+        database_response = self.table.get(id, verbose=verbose)
 
         return database_response
 
