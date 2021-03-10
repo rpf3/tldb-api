@@ -17,9 +17,11 @@ class Tracklists(Resource):
         """
         List all tracklists
         """
+        skip = int(request.args.get("skip", 0))
+        take = int(request.args.get("take", 10))
         verbose = request.args.get("verbose") == "1"
 
-        database_response = self.table.get(verbose=verbose)
+        database_response = self.table.get(skip=skip, take=take, verbose=verbose)
 
         return list(database_response)
 
