@@ -14,9 +14,9 @@ class Tracklist:
     def __init__(self):
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
-    def get(self, id=None, verbose=False):
+    def get(self, id=None, skip=0, take=DEFAULT_LIMIT, verbose=False):
         if id is None:
-            query = self.table.limit(DEFAULT_LIMIT)
+            query = self.table.skip(skip).limit(take)
         else:
             query = self.table.get(id)
 
