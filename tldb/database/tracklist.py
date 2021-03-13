@@ -42,6 +42,16 @@ class Tracklist:
                             .get(track["artistId"])
                         }
                     )
+                    .merge(
+                        lambda track: {
+                            "remix": {
+                                "name": track["remix"]["name"],
+                                "artist": r.db(DATABASE_NAME)
+                                .table(ARTIST_TABLE_NAME)
+                                .get(track["remix"]["artistId"]),
+                            }
+                        }
+                    )
                 }
             )
         else:
