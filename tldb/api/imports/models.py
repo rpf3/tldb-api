@@ -7,12 +7,21 @@ artist = api.model(
     "Artist", {"name": fields.String(description="The name of the artist")}
 )
 
+remix = api.model(
+    "Remix",
+    {
+        "name": fields.String(description="The name of the remix"),
+        "artist": fields.Nested(artist),
+    },
+)
+
 track = api.model(
     "Track",
     {
         "name": fields.String(description="The name of the track"),
         "index": fields.Integer(description="The index in the tracklist"),
         "artist": fields.Nested(artist),
+        "remix": fields.Nested(remix),
     },
 )
 
