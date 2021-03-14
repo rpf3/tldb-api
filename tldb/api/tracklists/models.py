@@ -15,6 +15,7 @@ tracklist = api.model(
     {
         "id": fields.String(description="The ID of the tracklist", readonly=True),
         "name": fields.String(description="The name of the tracklist"),
+        "date": fields.Date(description="The date of the tracklist"),
         "artistIds": fields.List(fields.String(description="The ID of the artist")),
         "tracks": fields.List(fields.Nested(track)),
     },
