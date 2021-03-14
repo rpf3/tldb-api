@@ -63,10 +63,15 @@ def create_tracklists(tracklists, artist_map, track_map):
     api_model = []
 
     for tracklist in tracklists:
-        artist_name = tracklist.get("artist").get("name")
-        artist_id = artist_map.get(artist_name)
+        artist_ids = []
 
-        tracklist["artistId"] = artist_id
+        for artist in tracklist.get("artists"):
+            artist_name = artist.get("name")
+            artist_id = artist_map.get(artist_name)
+
+            artist_ids.append(artist_id)
+
+        tracklist["artistIds"] = artist_ids
 
         for track in tracklist.get("tracks"):
             track_name = track.get("name")
