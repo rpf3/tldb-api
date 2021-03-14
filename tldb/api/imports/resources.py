@@ -20,7 +20,7 @@ class Imports(Resource):
 
         # Get the artist and tracks from each tracklist
         for tracklist in tracklists:
-            artists.append(tracklist.get("artist"))
+            artists.extend(tracklist.get("artists"))
 
             tracks += tracklist.get("tracks")
 

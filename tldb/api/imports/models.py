@@ -29,7 +29,7 @@ tracklist = api.model(
     "Tracklist",
     {
         "name": fields.String(description="The name of the tracklist"),
-        "artist": fields.Nested(artist),
+        "artists": fields.List(fields.Nested(artist)),
         "tracks": fields.List(fields.Nested(track)),
     },
 )

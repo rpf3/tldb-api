@@ -23,9 +23,10 @@ class Tracklist:
         if verbose is True:
             final_query = query.merge(
                 lambda tracklist: {
-                    "artist": r.db(DATABASE_NAME)
+                    "artists": r.db(DATABASE_NAME)
                     .table(ARTIST_TABLE_NAME)
-                    .get(tracklist["artistId"])
+                    .get_all(r.args(tracklist["artistIds"]))
+                    .coerce_to("array")
                 }
             ).merge(
                 lambda tracklist: {
