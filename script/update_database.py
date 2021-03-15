@@ -23,6 +23,9 @@ def create_track_table(conn):
 def create_tracklist_table(conn):
     r.db(DATABASE_NAME).table_create("tracklist").run(conn)
 
+    # Create a secondary index on the date
+    r.db(DATABASE_NAME).table("tracklist").index_create("date").run(conn)
+
 
 if __name__ == "__main__":
     host = os.environ["RETHINKDB_HOST"]
