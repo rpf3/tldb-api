@@ -31,6 +31,14 @@ class Artist:
 
         return list(result)
 
+    def search_name(self, name):
+        query = self.table.get_all(name.lower(), index="name")
+
+        with Connection() as conn:
+            result = conn.run(query)
+
+        return list(result)
+
     def insert(self, artists):
         if len(artists) > 0:
             query = self.table.insert(artists)
