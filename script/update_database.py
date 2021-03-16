@@ -15,9 +15,19 @@ def create_database(conn):
 def create_artist_table(conn):
     r.db(DATABASE_NAME).table_create("artist").run(conn)
 
+    # Create a secondary index on the name
+    r.db(DATABASE_NAME).table("artist").index_create(
+        "name", r.row["name"].downcase()
+    ).run(conn)
+
 
 def create_track_table(conn):
     r.db(DATABASE_NAME).table_create("track").run(conn)
+
+    # Create a secondary index on the name
+    r.db(DATABASE_NAME).table("track").index_create(
+        "name", r.row["name"].downcase()
+    ).run(conn)
 
 
 def create_tracklist_table(conn):
