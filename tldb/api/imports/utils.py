@@ -37,13 +37,16 @@ def create_tracks(tracks, artist_map):
 
         track["artistId"] = artist_id
 
-        remix_artist = track.get("remix", {}).get("artist")
+        remix = track.get("remix")
 
-        if remix_artist:
-            remix_artist_name = remix_artist.get("name")
-            remix_artist_id = artist_map.get(remix_artist_name)
+        if remix is not None:
+            remix_artist = remix.get("artist")
 
-            track["remix"]["artistId"] = remix_artist_id
+            if remix_artist:
+                remix_artist_name = remix_artist.get("name")
+                remix_artist_id = artist_map.get(remix_artist_name)
+
+                track["remix"]["artistId"] = remix_artist_id
 
         api_model.append(marshal(track, track_model))
 

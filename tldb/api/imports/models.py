@@ -21,7 +21,7 @@ track = api.model(
         "name": fields.String(description="The name of the track"),
         "index": fields.Integer(description="The index in the tracklist"),
         "artist": fields.Nested(artist),
-        "remix": fields.Nested(remix),
+        "remix": fields.Nested(remix, allow_null=True),
     },
 )
 

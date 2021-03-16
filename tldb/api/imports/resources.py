@@ -28,10 +28,13 @@ class Imports(Resource):
         for track in tracks:
             artists.append(track.get("artist"))
 
-            remix_artist = track.get("remix", {}).get("artist")
+            remix = track.get("remix")
 
-            if remix_artist:
-                artists.append(remix_artist)
+            if remix is not None:
+                remix_artist = remix.get("artist")
+
+                if remix_artist:
+                    artists.append(remix_artist)
 
         artist_map = utils.create_artists(artists)
         track_map = utils.create_tracks(tracks, artist_map)

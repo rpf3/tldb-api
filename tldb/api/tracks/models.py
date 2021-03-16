@@ -16,7 +16,7 @@ track = api.model(
         "id": fields.String(description="The ID of the track", readonly=True),
         "name": fields.String(description="The name of the track"),
         "artistId": fields.String(description="The ID of the artist"),
-        "remix": fields.Nested(remix),
+        "remix": fields.Nested(remix, allow_null=True),
     },
 )
 

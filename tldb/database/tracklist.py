@@ -50,12 +50,15 @@ class Tracklist:
                     )
                     .merge(
                         lambda track: {
-                            "remix": {
-                                "name": track["remix"]["name"],
-                                "artist": r.db(DATABASE_NAME)
-                                .table(ARTIST_TABLE_NAME)
-                                .get(track["remix"]["artistId"]),
-                            }
+                            "remix": r.branch(
+                                track["remix"].eq(None),
+                                track["remix"],
+                                {
+                                    "artist": r.db(DATABASE_NAME)
+                                    .table(ARTIST_TABLE_NAME)
+                                    .get(track["remix"]["artistId"])
+                                },
+                            )
                         }
                     )
                 }
