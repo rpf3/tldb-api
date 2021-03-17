@@ -4,7 +4,8 @@ api = Namespace("imports")
 
 
 artist = api.model(
-    "Artist", {"name": fields.String(description="The name of the artist")}
+    "Artist",
+    {"name": fields.String(description="The name of the artist", default="ID")},
 )
 
 remix = api.model(
@@ -18,7 +19,7 @@ remix = api.model(
 track = api.model(
     "Track",
     {
-        "name": fields.String(description="The name of the track"),
+        "name": fields.String(description="The name of the track", default="ID"),
         "index": fields.Integer(description="The index in the tracklist"),
         "artist": fields.Nested(artist),
         "remix": fields.Nested(remix, allow_null=True),
