@@ -65,7 +65,7 @@ def create_track_models(tracks, artist_map):
     models = []
 
     for track in tracks:
-        artist_name = track.get("artist").get("name") or "ID"
+        artist_name = track.get("artist").get("name")
         artist_id = artist_map.get(artist_name)
 
         track["artistId"] = artist_id
@@ -76,13 +76,10 @@ def create_track_models(tracks, artist_map):
             remix_artist = remix.get("artist")
 
             if remix_artist:
-                remix_artist_name = remix_artist.get("name") or "ID"
+                remix_artist_name = remix_artist.get("name")
                 remix_artist_id = artist_map.get(remix_artist_name)
 
                 track["remix"]["artistId"] = remix_artist_id
-
-        if track.get("name") is None:
-            track["name"] = "ID"
 
         model = marshal(track, track_model)
 
@@ -140,7 +137,7 @@ def create_tracklists(tracklists, artist_map, track_map):
         artist_ids = []
 
         for artist in tracklist.get("artists"):
-            artist_name = artist.get("name") or "ID"
+            artist_name = artist.get("name")
             artist_id = artist_map.get(artist_name)
 
             artist_ids.append(artist_id)
@@ -148,7 +145,7 @@ def create_tracklists(tracklists, artist_map, track_map):
         tracklist["artistIds"] = artist_ids
 
         for track in tracklist.get("tracks"):
-            track_name = track.get("name") or "ID"
+            track_name = track.get("name")
             track_id = track_map.get(track_name)
 
             track["id"] = track_id
