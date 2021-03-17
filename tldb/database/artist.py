@@ -108,3 +108,14 @@ def get_artist(obj):
     result = {"artist": r.db(DATABASE_NAME).table(TABLE_NAME).get(obj["artistId"])}
 
     return result
+
+
+def get_artists(obj):
+    result = {
+        "artists": r.db(DATABASE_NAME)
+        .table(TABLE_NAME)
+        .get_all(r.args(obj["artistIds"]))
+        .coerce_to("array")
+    }
+
+    return result
