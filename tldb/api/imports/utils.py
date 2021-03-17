@@ -64,6 +64,14 @@ def is_same_track(track1, track2):
     return result
 
 
+def marshal_track_model(obj):
+    result = marshal(obj, track_model)
+
+    del result["id"]
+
+    return result
+
+
 def create_track_models(tracks, artist_map):
     models = []
 
@@ -84,7 +92,7 @@ def create_track_models(tracks, artist_map):
 
                 track["remix"]["artistId"] = remix_artist_id
 
-        model = marshal(track, track_model)
+        model = marshal_track_model(track)
 
         models.append(model)
 
@@ -122,7 +130,7 @@ def create_tracks(tracks, artist_map):
                     match_found = is_same_track(model, result)
 
                     if match_found:
-                        track_map[track_name] = result.get("id")
+                        track_map[track_hash] = result.get("id")
                         break
 
                 if match_found is False:
@@ -133,7 +141,10 @@ def create_tracks(tracks, artist_map):
     database_response = table.upsert(api_model)
 
     for track in database_response:
-        track_map[track.get("name")] = track.get("id")
+        model = marshal_track_model(track)
+        track_hash = hash(json.dumps(model, sort_keys=True))
+
+        track_map[track_hash] = track.get("id")
 
     return track_map
 
@@ -155,8 +166,9 @@ def create_tracklists(tracklists, artist_map, track_map):
         tracklist["artistIds"] = artist_ids
 
         for track in tracklist.get("tracks"):
-            track_name = track.get("name")
-            track_id = track_map.get(track_name)
+            model = marshal_track_model(track)
+            track_hash = hash(json.dumps(model, sort_keys=True))
+            track_id = track_map.get(track_hash)
 
             track["id"] = track_id
 
