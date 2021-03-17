@@ -41,6 +41,26 @@ def create_artists(artists):
     return artist_map
 
 
+def is_same_track(track1, track2):
+    same_name = track1.get("name") == track2.get("name")
+    same_artist = track1.get("artistId") == track2.get("artistId")
+
+    remix1 = track1.get("remix")
+    remix2 = track2.get("remix")
+
+    if remix1 and remix2:
+        same_remix_name = remix1.get("name") == remix2.get("name")
+        same_remix_artist = remix1.get("artistId") == remix2.get("artistId")
+
+        same_remix = same_remix_name and same_remix_artist
+    else:
+        same_remix = (remix1 is None) and (remix2 is None)
+
+    result = same_name and same_artist and same_remix
+
+    return result
+
+
 def create_tracks(tracks, artist_map):
     table = TrackTable()
 
@@ -78,7 +98,17 @@ def create_tracks(tracks, artist_map):
             if len(search_results) == 0:
                 api_model.append(model)
             else:
-                track_map[track_name] = search_results[0].get("id")
+                match_found = False
+
+                for result in search_results:
+                    match_found = is_same_track(model, result)
+
+                    if match_found:
+                        track_map[track_name] = result.get("id")
+                        break
+
+                if match_found is False:
+                    api_model.append(model)
 
             track_names.add(track_name)
 
