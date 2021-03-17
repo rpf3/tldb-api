@@ -1,3 +1,4 @@
+import copy
 import json
 
 from flask_restx import marshal
@@ -86,6 +87,12 @@ def create_track_models(tracks, artist_map):
         model = marshal(track, track_model)
 
         models.append(model)
+
+        if remix is not None:
+            original = copy.deepcopy(model)
+            original["remix"] = None
+
+            models.append(original)
 
     return models
 
