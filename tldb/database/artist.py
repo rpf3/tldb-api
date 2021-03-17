@@ -102,3 +102,9 @@ class Artist:
 
         if len(invalid_ids) > 0:
             abort(400, "Invalid artist IDs", ids=invalid_ids)
+
+
+def get_artist(obj):
+    result = {"artist": r.db(DATABASE_NAME).table(TABLE_NAME).get(obj["artistId"])}
+
+    return result
