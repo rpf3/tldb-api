@@ -61,12 +61,8 @@ def is_same_track(track1, track2):
     return result
 
 
-def create_tracks(tracks, artist_map):
-    table = TrackTable()
-
-    api_model = []
-    track_map = {}
-    track_names = set()
+def create_track_models(tracks, artist_map):
+    models = []
 
     for track in tracks:
         artist_name = track.get("artist").get("name") or "ID"
@@ -85,11 +81,26 @@ def create_tracks(tracks, artist_map):
 
                 track["remix"]["artistId"] = remix_artist_id
 
+        if track.get("name") is None:
+            track["name"] = "ID"
+
         model = marshal(track, track_model)
 
-        if model.get("name") is None:
-            model["name"] = "ID"
+        models.append(model)
 
+    return models
+
+
+def create_tracks(tracks, artist_map):
+    table = TrackTable()
+
+    track_models = create_track_models(tracks, artist_map)
+
+    api_model = []
+    track_map = {}
+    track_names = set()
+
+    for model in track_models:
         track_name = model.get("name")
 
         if track_name not in track_names:
