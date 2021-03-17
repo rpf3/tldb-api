@@ -1,7 +1,8 @@
 from flask_restx import abort
 from rethinkdb import r
 
-from tldb.database import artist, utils
+from tldb.database import utils
+from tldb.database.artist import get_artist
 from tldb.database.connection import DATABASE_NAME, Connection
 
 TABLE_NAME = "track"
@@ -19,13 +20,7 @@ class Track:
             track_query = self.table.get(id)
 
         if verbose is True:
-            final_query = track_query.merge(
-                lambda track: {
-                    "artist": r.db(DATABASE_NAME)
-                    .table(artist.TABLE_NAME)
-                    .get(track["artistId"])
-                }
-            )
+            final_query = track_query.merge(get_artist)
         else:
             final_query = track_query
 

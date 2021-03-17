@@ -3,6 +3,7 @@ from rethinkdb import r
 
 from tldb.database import utils
 from tldb.database.artist import TABLE_NAME as ARTIST_TABLE_NAME
+from tldb.database.artist import get_artist
 from tldb.database.connection import DATABASE_NAME, Connection
 from tldb.database.track import TABLE_NAME as TRACK_TABLE_NAME
 
@@ -41,23 +42,13 @@ class Tracklist:
                         .table(TRACK_TABLE_NAME)
                         .get(track["id"])
                     )
-                    .merge(
-                        lambda track: {
-                            "artist": r.db(DATABASE_NAME)
-                            .table(ARTIST_TABLE_NAME)
-                            .get(track["artistId"])
-                        }
-                    )
+                    .merge(get_artist)
                     .merge(
                         lambda track: {
                             "remix": r.branch(
                                 track["remix"].eq(None),
                                 track["remix"],
-                                {
-                                    "artist": r.db(DATABASE_NAME)
-                                    .table(ARTIST_TABLE_NAME)
-                                    .get(track["remix"]["artistId"])
-                                },
+                                get_artist(track["remix"]),
                             )
                         }
                     )
