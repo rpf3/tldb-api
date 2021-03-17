@@ -1,3 +1,5 @@
+import json
+
 from flask_restx import marshal
 
 from tldb.api.artists.models import artist as artist_model
@@ -95,12 +97,13 @@ def create_tracks(tracks, artist_map):
 
     api_model = []
     track_map = {}
-    track_names = set()
+    track_hashes = set()
 
     for model in track_models:
         track_name = model.get("name")
+        track_hash = hash(json.dumps(model, sort_keys=True))
 
-        if track_name not in track_names:
+        if track_hash not in track_hashes:
             search_results = table.search_name(track_name)
 
             if len(search_results) == 0:
@@ -118,7 +121,7 @@ def create_tracks(tracks, artist_map):
                 if match_found is False:
                     api_model.append(model)
 
-            track_names.add(track_name)
+            track_hashes.add(track_hash)
 
     database_response = table.upsert(api_model)
 
