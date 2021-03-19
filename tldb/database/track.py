@@ -60,8 +60,8 @@ class Track:
 
         return result
 
-    def get_versions_by_original(self, id):
-        query = self.table.filter(r.row["originalId"].eq(id))
+    def get_versions_by_original(self, ids):
+        query = self.table.get_all(*ids, index="originalId")
 
         with Connection() as conn:
             cursor = conn.run(query)

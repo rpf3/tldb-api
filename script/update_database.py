@@ -29,6 +29,11 @@ def create_track_table(conn):
         "name", r.row["name"].downcase()
     ).run(conn)
 
+    # Create a secondary index on the originalId
+    r.db(DATABASE_NAME).table("track").index_create(
+        "originalId", r.row["originalId"]
+    ).run(conn)
+
 
 def create_tracklist_table(conn):
     r.db(DATABASE_NAME).table_create("tracklist").run(conn)

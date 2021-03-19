@@ -188,13 +188,29 @@ def create_remix_tracks(tracks, artist_map, original_track_map):
 def update_original_tracks(original_track_map):
     table = TrackTable()
 
-    for track_id in original_track_map.values():
-        track = table.get(track_id)
-        search_results = table.get_versions_by_original(track_id)
+    track_ids = original_track_map.values()
+    search_results = table.get_versions_by_original(track_ids)
 
-        track["versions"] = [result.get("id") for result in search_results]
+    version_map = {}
 
-        table.update([track])
+    for search_result in search_results:
+        result_id = search_result.get("id")
+        original_id = search_result.get("originalId")
+
+        if original_id in version_map:
+            version_map[original_id].append(result_id)
+        else:
+            version_map[original_id] = [result_id]
+
+    tracks = table.get_all(track_ids)
+
+    for track in tracks:
+        track_id = track.get("id")
+
+        if track_id in version_map:
+            track["versions"] = version_map[track_id]
+
+    table.update(tracks)
 
 
 def create_tracks(tracks, artist_map):
