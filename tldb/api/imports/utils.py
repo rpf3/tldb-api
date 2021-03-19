@@ -58,18 +58,6 @@ def get_track_hash(track):
     return result
 
 
-def is_same_track(track1, track2):
-    model1 = marshal_track_model(track1)
-    model2 = marshal_track_model(track2)
-
-    hash1 = get_track_hash(model1)
-    hash2 = get_track_hash(model2)
-
-    result = hash1 == hash2
-
-    return result
-
-
 def create_track_models(tracks, artist_map):
     models = []
 
@@ -103,46 +91,99 @@ def create_track_models(tracks, artist_map):
     return models
 
 
-def create_tracks(tracks, artist_map):
+def create_track_model(track, artist_map):
+    result = marshal_track_model(track)
+
+    artist_name = track.get("artist").get("name")
+
+    result["artistId"] = artist_map.get(artist_name)
+
+    if track.get("remix"):
+        remix_artist_name = track.get("remix").get("artist").get("name")
+
+        result["remix"]["artistId"] = artist_map.get(remix_artist_name)
+
+    return result
+
+
+def create_original_tracks(tracks, artist_map):
     table = TrackTable()
 
-    track_models = create_track_models(tracks, artist_map)
-
-    api_model = []
+    models = []
+    hashes = set()
     track_map = {}
-    track_hashes = set()
 
-    for model in track_models:
-        track_name = model.get("name")
+    for track in tracks:
+        remix = track.get("remix")
+
+        if remix is None:
+            model = create_track_model(track, artist_map)
+        else:
+            track_copy = copy.deepcopy(track)
+            track_copy["remix"] = None
+
+            model = create_track_model(track_copy, artist_map)
+
         track_hash = get_track_hash(model)
 
-        if track_hash not in track_hashes:
-            search_results = table.search_name(track_name)
+        if track_hash not in hashes:
+            search_result = table.get_exact_match(
+                track.get("name"), track.get("artistId")
+            )
 
-            if len(search_results) == 0:
-                api_model.append(model)
+            if search_result is None:
+                models.append(model)
+                hashes.add(track_hash)
             else:
-                match_found = False
+                track_map[track_hash] = search_result.get("id")
 
-                for result in search_results:
-                    match_found = is_same_track(model, result)
-
-                    if match_found:
-                        track_map[track_hash] = result.get("id")
-                        break
-
-                if match_found is False:
-                    api_model.append(model)
-
-            track_hashes.add(track_hash)
-
-    database_response = table.upsert(api_model)
+    database_response = table.upsert(models)
 
     for track in database_response:
         model = marshal_track_model(track)
         track_hash = get_track_hash(model)
 
         track_map[track_hash] = track.get("id")
+
+    return track_map
+
+
+def create_remix_tracks(tracks, artist_map):
+    table = TrackTable()
+
+    models = []
+    hashes = set()
+    track_map = {}
+
+    for track in tracks:
+        remix = track.get("remix")
+
+        if remix is not None:
+            model = create_track_model(track, artist_map)
+
+            track_hash = get_track_hash(model)
+
+            if track_hash not in hashes:
+                models.append(model)
+
+    database_response = table.upsert(models)
+
+    track_map = {}
+
+    for track in database_response:
+        model = marshal_track_model(track)
+        track_hash = get_track_hash(model)
+
+        track_map[track_hash] = track.get("id")
+
+    return track_map
+
+
+def create_tracks(tracks, artist_map):
+    original_track_map = create_original_tracks(tracks, artist_map)
+    remix_track_map = create_remix_tracks(tracks, artist_map)
+
+    track_map = {**original_track_map, **remix_track_map}
 
     return track_map
 
@@ -164,7 +205,7 @@ def create_tracklists(tracklists, artist_map, track_map):
         tracklist["artistIds"] = artist_ids
 
         for track in tracklist.get("tracks"):
-            model = marshal_track_model(track)
+            model = create_track_model(track, artist_map)
             track_hash = get_track_hash(model)
             track_id = track_map.get(track_hash)
 
