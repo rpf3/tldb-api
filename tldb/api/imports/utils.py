@@ -185,9 +185,23 @@ def create_remix_tracks(tracks, artist_map, original_track_map):
     return track_map
 
 
+def update_original_tracks(original_track_map):
+    table = TrackTable()
+
+    for track_id in original_track_map.values():
+        track = table.get(track_id)
+        search_results = table.get_versions_by_original(track_id)
+
+        track["versions"] = [result.get("id") for result in search_results]
+
+        table.update([track])
+
+
 def create_tracks(tracks, artist_map):
     original_track_map = create_original_tracks(tracks, artist_map)
     remix_track_map = create_remix_tracks(tracks, artist_map, original_track_map)
+
+    update_original_tracks(original_track_map)
 
     track_map = {**original_track_map, **remix_track_map}
 
