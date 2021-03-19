@@ -148,7 +148,7 @@ def create_original_tracks(tracks, artist_map):
     return track_map
 
 
-def create_remix_tracks(tracks, artist_map):
+def create_remix_tracks(tracks, artist_map, original_track_map):
     table = TrackTable()
 
     models = []
@@ -164,6 +164,12 @@ def create_remix_tracks(tracks, artist_map):
             track_hash = get_track_hash(model)
 
             if track_hash not in hashes:
+                track_copy = copy.deepcopy(model)
+                track_copy["remix"] = None
+                track_copy_hash = get_track_hash(track_copy)
+
+                model["originalId"] = original_track_map[track_copy_hash]
+
                 models.append(model)
 
     database_response = table.upsert(models)
@@ -181,7 +187,7 @@ def create_remix_tracks(tracks, artist_map):
 
 def create_tracks(tracks, artist_map):
     original_track_map = create_original_tracks(tracks, artist_map)
-    remix_track_map = create_remix_tracks(tracks, artist_map)
+    remix_track_map = create_remix_tracks(tracks, artist_map, original_track_map)
 
     track_map = {**original_track_map, **remix_track_map}
 
