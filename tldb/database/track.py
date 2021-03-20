@@ -20,32 +20,23 @@ class Track:
             track_query = self.table.get(id)
 
         if verbose is True:
-            final_query = track_query.merge(get_artist).merge(
-                lambda track: {
-                    "versions": r.branch(
-                        track.has_fields("versions"),
-                        r.db(DATABASE_NAME)
-                        .table(TABLE_NAME)
-                        .get_all(r.args(track["versions"]))
-                        .merge(get_artist)
-                        .merge(
-                            lambda track: {
-                                "remix": r.branch(
-                                    track["remix"].eq(None),
-                                    track["remix"],
-                                    get_artist(track["remix"]),
-                                )
-                            }
+            final_query = (
+                track_query.merge(get_artist)
+                .merge(get_remix)
+                .merge(
+                    lambda track: {
+                        "versions": r.branch(
+                            track.has_fields("versions"),
+                            r.db(DATABASE_NAME)
+                            .table(TABLE_NAME)
+                            .get_all(r.args(track["versions"]))
+                            .merge(get_artist)
+                            .merge(get_remix)
+                            .coerce_to("array"),
+                            [],
                         )
-                        .coerce_to("array"),
-                        [],
-                    ),
-                    "remix": r.branch(
-                        track["remix"].eq(None),
-                        track["remix"],
-                        get_artist(track["remix"]),
-                    ),
-                }
+                    }
+                )
             )
         else:
             final_query = track_query
@@ -167,3 +158,11 @@ class Track:
 
         if len(invalid_ids) > 0:
             abort(400, "Invalid track IDs", ids=invalid_ids)
+
+
+def get_remix(obj):
+    result = {
+        "remix": r.branch(obj["remix"].eq(None), obj["remix"], get_artist(obj["remix"]))
+    }
+
+    return result

@@ -5,6 +5,7 @@ from tldb.database import utils
 from tldb.database.artist import get_artist, get_artists
 from tldb.database.connection import DATABASE_NAME, Connection
 from tldb.database.track import TABLE_NAME as TRACK_TABLE_NAME
+from tldb.database.track import get_remix
 
 TABLE_NAME = "tracklist"
 DEFAULT_LIMIT = 10
@@ -35,15 +36,7 @@ class Tracklist:
                         .get(track["id"])
                     )
                     .merge(get_artist)
-                    .merge(
-                        lambda track: {
-                            "remix": r.branch(
-                                track["remix"].eq(None),
-                                track["remix"],
-                                get_artist(track["remix"]),
-                            )
-                        }
-                    )
+                    .merge(get_remix)
                 }
             )
         else:
