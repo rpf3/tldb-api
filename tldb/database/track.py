@@ -20,7 +20,33 @@ class Track:
             track_query = self.table.get(id)
 
         if verbose is True:
-            final_query = track_query.merge(get_artist)
+            final_query = track_query.merge(get_artist).merge(
+                lambda track: {
+                    "versions": r.branch(
+                        track.has_fields("versions"),
+                        r.db(DATABASE_NAME)
+                        .table(TABLE_NAME)
+                        .get_all(r.args(track["versions"]))
+                        .merge(get_artist)
+                        .merge(
+                            lambda track: {
+                                "remix": r.branch(
+                                    track["remix"].eq(None),
+                                    track["remix"],
+                                    get_artist(track["remix"]),
+                                )
+                            }
+                        )
+                        .coerce_to("array"),
+                        [],
+                    ),
+                    "remix": r.branch(
+                        track["remix"].eq(None),
+                        track["remix"],
+                        get_artist(track["remix"]),
+                    ),
+                }
+            )
         else:
             final_query = track_query
 
