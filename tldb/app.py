@@ -16,7 +16,7 @@ app.config[
 
 api = Api(app)
 
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 api.register_blueprint(artists.blp)
 api.register_blueprint(tracks.blp)
