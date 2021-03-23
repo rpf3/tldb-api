@@ -1,17 +1,16 @@
-from flask_restx import Resource, marshal
+from flask.views import MethodView
 
 from tldb.api.artists import models
-from tldb.api.artists.models import api
+from tldb.api.artists.models import blp
 from tldb.database.artist import Artist as ArtistTable
 
 
-@api.route("")
-class Artists(Resource):
-    def __init__(self, res):
-        super().__init__(res)
-
+@blp.route("")
+class Artists(MethodView):
+    def __init__(self):
         self.table = ArtistTable()
 
+    @blp.response(200, models.GetArtistSchema(many=True))
     def get(self):
         """
         List all artists
@@ -20,39 +19,33 @@ class Artists(Resource):
 
         return list(database_response)
 
-    @api.expect(models.artist)
-    def post(self):
+    @blp.arguments(models.CreateArtistSchema)
+    def post(self, post_data):
         """
         Create a new artist
         """
-        api_model = marshal(api.payload, models.artist)
-
-        del api_model["id"]
-
-        database_response = self.table.insert(api_model)
+        database_response = self.table.insert(post_data)
         artist_id = database_response[0]
 
         return artist_id
 
-    @api.expect(models.artists)
-    def patch(self):
+    @blp.arguments(models.UpdateArtistSchema(many=True))
+    @blp.response(200, models.GetArtistSchema(many=True))
+    def patch(self, patch_data):
         """
         Create or update a set of artists
         """
-        api_model = marshal(api.payload, models.artists)
-
-        database_response = self.table.upsert(api_model.get("artists"))
+        database_response = self.table.upsert(patch_data)
 
         return database_response
 
 
-@api.route("/<string:id>")
-class Artist(Resource):
-    def __init__(self, res):
-        super().__init__(res)
-
+@blp.route("/<string:id>")
+class Artist(MethodView):
+    def __init__(self):
         self.table = ArtistTable()
 
+    @blp.response(200, models.GetArtistSchema)
     def get(self, id):
         """
         Get a single artist
@@ -61,15 +54,17 @@ class Artist(Resource):
 
         return database_response
 
-    @api.expect(models.artist)
-    def put(self, id):
+    @blp.arguments(models.CreateArtistSchema)
+    @blp.response(200, models.GetArtistSchema)
+    def put(self, put_data, id):
         """
         Update a single artist
         """
-        api_model = marshal(api.payload, models.artist)
+        schema = models.CreateArtistSchema()
+        json_data = schema.dump(put_data)
 
-        api_model["id"] = id
+        json_data["id"] = id
 
-        database_response = self.table.update([api_model])
+        database_response = self.table.update([json_data])
 
-        return list(database_response)
+        return database_response[0]

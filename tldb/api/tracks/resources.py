@@ -1,61 +1,56 @@
 from flask import request
-from flask_restx import Resource, marshal
+from flask.views import MethodView
 
 from tldb.api.tracks import models
-from tldb.api.tracks.models import api
+from tldb.api.tracks.models import blp
 from tldb.database.track import Track as TrackTable
 
 
-@api.route("")
-class Tracks(Resource):
-    def __init__(self, res):
-        super().__init__(res)
-
+@blp.route("")
+class Tracks(MethodView):
+    def __init__(self):
         self.table = TrackTable()
 
+    @blp.response(200, models.GetTrackSchema(many=True))
     def get(self):
         """
         List all tracks
         """
         verbose = request.args.get("verbose") == "1"
 
+        print(verbose)
+
         database_response = self.table.get(verbose=verbose)
 
         return list(database_response)
 
-    @api.expect(models.track)
-    def post(self):
+    @blp.arguments(models.CreateTrackSchema)
+    def post(self, post_data):
         """
         Create a new track
         """
-        api_model = marshal(api.payload, models.track)
-
-        del api_model["id"]
-
-        database_response = self.table.insert(api_model)
+        database_response = self.table.insert(post_data)
         track_id = database_response[0]
 
         return track_id
 
-    @api.expect(models.tracks)
-    def patch(self):
+    @blp.arguments(models.UpdateTrackSchema(many=True))
+    @blp.response(200, models.GetTrackSchema(many=True))
+    def patch(self, patch_data):
         """
         Create or update a set of tracks
         """
-        api_model = marshal(api.payload, models.tracks)
-
-        database_response = self.table.upsert(api_model.get("tracks"))
+        database_response = self.table.upsert(patch_data)
 
         return database_response
 
 
-@api.route("/<string:id>")
-class Track(Resource):
-    def __init__(self, res):
-        super().__init__(res)
-
+@blp.route("/<string:id>")
+class Track(MethodView):
+    def __init__(self):
         self.table = TrackTable()
 
+    @blp.response(200, models.GetTrackSchema)
     def get(self, id):
         """
         Get a single track
@@ -66,15 +61,17 @@ class Track(Resource):
 
         return database_response
 
-    @api.expect(models.track)
-    def put(self, id):
+    @blp.arguments(models.CreateTrackSchema)
+    @blp.response(200, models.GetTrackSchema)
+    def put(self, put_data, id):
         """
         Update a single track
         """
-        api_model = marshal(api.payload, models.track)
+        schema = models.CreateTrackSchema()
+        json_data = schema.dump(put_data)
 
-        api_model["id"] = id
+        json_data["id"] = id
 
-        database_response = self.table.update([api_model])
+        database_response = self.table.update([json_data])
 
-        return list(database_response)
+        return database_response[0]

@@ -1,1 +1,1 @@
-from tldb.api.artists.resources import api  # noqa: F401
+from tldb.api.artists.resources import blp  # noqa: F401

@@ -1,1 +1,1 @@
-from tldb.api.tracklists.resources import api  # noqa: F401
+from tldb.api.tracklists.resources import blp  # noqa: F401

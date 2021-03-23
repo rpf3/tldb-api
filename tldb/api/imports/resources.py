@@ -1,28 +1,25 @@
-from flask_restx import Resource, marshal
+from flask.views import MethodView
 
 from tldb.api.imports import models, utils
-from tldb.api.imports.models import api
+from tldb.api.imports.models import blp
+from tldb.api.tracklists.models import GetTracklistSchema
 
 
-@api.route("")
-class Imports(Resource):
-    @api.expect(models.tracklists)
-    def post(self):
+@blp.route("")
+class Imports(MethodView):
+    @blp.arguments(models.ImportTracklistSchema(many=True))
+    @blp.response(200, GetTracklistSchema(many=True))
+    def post(self, post_data):
         """
         Import a set of tracklists and related data
         """
-        api_model = marshal(api.payload, models.tracklists)
-
-        tracklists = api_model.get("tracklists")
-
         artists = []
         tracks = []
 
         # Get the artist and tracks from each tracklist
-        for tracklist in tracklists:
+        for tracklist in post_data:
             artists.extend(tracklist.get("artists"))
-
-            tracks += tracklist.get("tracks")
+            tracks.extend(tracklist.get("tracks"))
 
         # Get the artist from each track in the tracklists
         for track in tracks:
@@ -39,6 +36,6 @@ class Imports(Resource):
         artist_map = utils.create_artists(artists)
         track_map = utils.create_tracks(tracks, artist_map)
 
-        database_response = utils.create_tracklists(tracklists, artist_map, track_map)
+        database_response = utils.create_tracklists(post_data, artist_map, track_map)
 
         return database_response
