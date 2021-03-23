@@ -18,11 +18,7 @@ class Tracklist:
 
     def get(self, id=None, skip=0, take=DEFAULT_LIMIT, verbose=False):
         if id is None:
-            query = (
-                self.table.order_by(index=r.desc(DEFAULT_SORT_INDEX))
-                .skip(skip)
-                .limit(take)
-            )
+            query = self.table.skip(skip).limit(take)
         else:
             query = self.table.get(id)
 

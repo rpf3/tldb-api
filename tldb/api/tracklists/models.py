@@ -1,26 +1,33 @@
-from flask_restx import Namespace, fields
+from flask_smorest import Blueprint
+from marshmallow import Schema, fields
 
-api = Namespace("tracklists")
+from tldb.api.artists.models import GetArtistSchema
+from tldb.api.tracks.models import GetTrackSchema
 
-track = api.model(
-    "Track",
-    {
-        "id": fields.String(description="The ID of the track"),
-        "index": fields.Integer(description="The index in the tracklist"),
-    },
-)
+blp = Blueprint("tracklists", "tracklists", url_prefix="/tracklists")
 
-tracklist = api.model(
-    "Tracklist",
-    {
-        "id": fields.String(description="The ID of the tracklist", readonly=True),
-        "name": fields.String(description="The name of the tracklist"),
-        "date": fields.Date(description="The date of the tracklist"),
-        "artistIds": fields.List(fields.String(description="The ID of the artist")),
-        "tracks": fields.List(fields.Nested(track)),
-    },
-)
 
-tracklists = api.model(
-    "Tracklists", {"tracklists": fields.List(fields.Nested(tracklist))}
-)
+class CreateIndexedTrackSchema(Schema):
+    id = fields.String(description="The ID of the track")
+    index = fields.Integer(description="The index in the tracklist")
+
+
+class GetIndexedTrackSchema(GetTrackSchema):
+    index = fields.Integer(description="The index in the tracklist")
+
+
+class CreateTracklistSchema(Schema):
+    id = fields.String(description="The ID of the tracklist", dump_only=True)
+    name = fields.String(description="The name of the tracklist")
+    artistIds = fields.List(fields.String(description="The ID of the artist"))
+    tracks = fields.List(fields.Nested(CreateIndexedTrackSchema))
+
+
+class GetTracklistSchema(CreateTracklistSchema):
+    id = fields.String(description="The ID of the tracklist", dump_only=True)
+    artists = fields.List(fields.Nested(GetArtistSchema), dump_only=True)
+    tracks = fields.List(fields.Nested(GetIndexedTrackSchema), dump_only=True)
+
+
+class UpdateTracklistSchema(CreateTracklistSchema):
+    id = fields.String(description="The ID of the tracklist")

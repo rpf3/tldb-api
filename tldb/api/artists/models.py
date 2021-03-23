@@ -1,13 +1,16 @@
-from flask_restx import Namespace, fields
+from flask_smorest import Blueprint
+from marshmallow import Schema, fields
 
-api = Namespace("artists")
+blp = Blueprint("artists", "artists", url_prefix="/artists")
 
-artist = api.model(
-    "Artist",
-    {
-        "id": fields.String(description="The ID of the artist", readonly=True),
-        "name": fields.String(description="The name of the artist"),
-    },
-)
 
-artists = api.model("Artists", {"artists": fields.List(fields.Nested(artist))})
+class CreateArtistSchema(Schema):
+    name = fields.String(description="The name of the artist")
+
+
+class GetArtistSchema(CreateArtistSchema):
+    id = fields.String(description="The ID of the artist", dump_only=True)
+
+
+class UpdateArtistSchema(CreateArtistSchema):
+    id = fields.String(description="The ID of the artist")
