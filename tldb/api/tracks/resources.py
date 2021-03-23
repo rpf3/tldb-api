@@ -18,8 +18,6 @@ class Tracks(MethodView):
         """
         verbose = request.args.get("verbose") == "1"
 
-        print(verbose)
-
         database_response = self.table.get(verbose=verbose)
 
         return list(database_response)

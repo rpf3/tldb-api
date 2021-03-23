@@ -22,8 +22,6 @@ class Tracklists(MethodView):
 
         database_response = self.table.get(skip=skip, take=take, verbose=verbose)
 
-        # print(database_response)
-
         return list(database_response)
 
     @blp.arguments(models.CreateTracklistSchema)
