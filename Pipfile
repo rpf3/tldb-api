@@ -5,11 +5,9 @@ name = "pypi"
 
 [packages]
 Flask = "*"
-flask = "*"
-flask-restx = "*"
 rethinkdb = "*"
 python-dotenv = "*"
-flask-cors = "*"
+Flask-Cors = "*"
 flask-smorest = "*"
 
 [dev-packages]

@@ -1,4 +1,4 @@
-from flask_restx import abort
+from flask_smorest import abort
 from rethinkdb import r
 
 from tldb.database import utils
@@ -101,7 +101,7 @@ class Artist:
                 invalid_ids.append(id)
 
         if len(invalid_ids) > 0:
-            abort(400, "Invalid artist IDs", ids=invalid_ids)
+            abort(400, message="Invalid artist IDs")
 
 
 def get_artist(obj):
