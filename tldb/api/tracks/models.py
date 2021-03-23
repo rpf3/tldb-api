@@ -1,5 +1,5 @@
 from flask_smorest import Blueprint
-from marshmallow import Schema, fields
+from marshmallow import EXCLUDE, Schema, fields
 
 from tldb.api.artists.models import GetArtistSchema
 
@@ -11,11 +11,17 @@ class RemixSchema(Schema):
     artistId = fields.String(description="The ID of the artist")
     artist = fields.Nested(GetArtistSchema, dump_only=True)
 
+    class Meta:
+        unknown = EXCLUDE
+
 
 class CreateTrackSchema(Schema):
     name = fields.String(description="The name of the track")
     artistId = fields.String(description="The ID of the artist")
     remix = fields.Nested(RemixSchema, allow_none=True)
+
+    class Meta:
+        unknown = EXCLUDE
 
 
 class GetTrackSchema(CreateTrackSchema):
