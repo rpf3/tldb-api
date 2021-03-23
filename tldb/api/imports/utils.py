@@ -123,18 +123,29 @@ def create_remix_tracks(tracks, artist_map, original_track_map):
 
         if remix is not None:
             model = create_track_model(track, artist_map)
+            model_remix = model.get("remix")
 
             track_hash = get_track_hash(model)
 
             if track_hash not in hashes:
-                original = copy.deepcopy(track)
-                original["remix"] = None
-                original_model = create_track_model(original, artist_map)
-                original_hash = get_track_hash(original_model)
+                search_result = table.get_exact_match(
+                    model.get("name"),
+                    model.get("artistId"),
+                    model_remix.get("name"),
+                    model_remix.get("artistId"),
+                )
 
-                model["originalId"] = original_track_map[original_hash]
+                if search_result is None:
+                    original = copy.deepcopy(track)
+                    original["remix"] = None
+                    original_model = create_track_model(original, artist_map)
+                    original_hash = get_track_hash(original_model)
 
-                models.append(model)
+                    model["originalId"] = original_track_map[original_hash]
+
+                    models.append(model)
+                else:
+                    track_map[track_hash] = search_result.get("id")
 
     database_response = table.upsert(models)
 
