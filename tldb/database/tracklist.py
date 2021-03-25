@@ -12,7 +12,7 @@ DEFAULT_LIMIT = 10
 DEFAULT_SORT_INDEX = "date"
 
 
-class Tracklist:
+class TracklistTable:
     def __init__(self):
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 

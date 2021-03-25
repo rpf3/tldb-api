@@ -1,7 +1,7 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from tldb.database.artist import Artist as ArtistTable
+from tldb.database import ArtistTable
 from tldb.models import ArtistSchema
 
 blp = Blueprint("artists", "artists", url_prefix="/artists")

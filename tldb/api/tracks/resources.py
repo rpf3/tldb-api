@@ -2,7 +2,7 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from tldb.database.track import Track as TrackTable
+from tldb.database import TrackTable
 from tldb.models import TrackSchema
 
 blp = Blueprint("tracks", "tracks", url_prefix="/tracks")
