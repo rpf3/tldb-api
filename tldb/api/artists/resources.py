@@ -44,7 +44,7 @@ class Artists(MethodView):
 
 
 @blp.route("/<string:id>")
-class Artist(MethodView):
+class ArtistsById(MethodView):
     def __init__(self):
         self.table = ArtistTable()
 
