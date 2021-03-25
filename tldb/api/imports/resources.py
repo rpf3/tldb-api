@@ -2,13 +2,13 @@ from flask.views import MethodView
 
 from tldb.api.imports import models, utils
 from tldb.api.imports.models import blp
-from tldb.api.tracklists.models import GetTracklistSchema
+from tldb.models import TracklistSchema
 
 
 @blp.route("")
 class Imports(MethodView):
     @blp.arguments(models.ImportTracklistSchema(many=True))
-    @blp.response(200, GetTracklistSchema(many=True))
+    @blp.response(200, TracklistSchema(many=True))
     def post(self, post_data):
         """
         Import a set of tracklists and related data

@@ -1,9 +1,9 @@
 from flask_smorest import abort
 from rethinkdb import r
 
-from tldb.database import utils
 from tldb.database.artist import get_artist
 from tldb.database.connection import DATABASE_NAME, Connection
+from tldb.models import TrackSchema
 
 TABLE_NAME = "track"
 DEFAULT_LIMIT = 10
@@ -17,7 +17,7 @@ class Track:
         if id is None:
             track_query = self.table.limit(DEFAULT_LIMIT)
         else:
-            track_query = self.table.get(id)
+            track_query = self.table.get_all(id)
 
         if verbose is True:
             final_query = (
@@ -44,7 +44,10 @@ class Track:
         with Connection() as conn:
             result = conn.run(final_query)
 
-        return result
+        schema = TrackSchema(many=True)
+        tracks = schema.load(result)
+
+        return tracks
 
     def get_all(self, ids):
         query = self.table.get_all(*ids)
@@ -52,7 +55,10 @@ class Track:
         with Connection() as conn:
             result = conn.run(query)
 
-        return list(result)
+        schema = TrackSchema(many=True)
+        tracks = schema.load(result)
+
+        return tracks
 
     def get_exact_match(self, name, artistId, remix_name=None, remix_artist_id=None):
         query = self.table.get_all(name.lower(), index="name").filter(
@@ -97,7 +103,9 @@ class Track:
 
     def insert(self, tracks):
         if len(tracks) > 0:
-            query = self.table.insert(tracks)
+            schema = TrackSchema(many=True, exclude=["id"])
+            json_data = schema.dump(tracks)
+            query = self.table.insert(json_data)
 
             with Connection() as conn:
                 result = conn.run(query)
@@ -110,14 +118,17 @@ class Track:
 
     def update(self, tracks):
         if len(tracks) > 0:
-            self.validate(tracks)
+            track_ids = {x.id for x in tracks}
 
-            query = self.table.insert(tracks, conflict="update")
+            self.validate(track_ids)
+
+            schema = TrackSchema(many=True)
+            json_data = schema.dump(tracks)
+
+            query = self.table.insert(json_data, conflict="update")
 
             with Connection() as conn:
                 conn.run(query)
-
-            track_ids = utils.get_ids(tracks)
         else:
             track_ids = []
 
@@ -128,27 +139,22 @@ class Track:
         existing_tracks = []
 
         for track in tracks:
-            if track.get("id") is not None:
+            if track.id is not None:
                 existing_tracks.append(track)
             else:
-                if "id" in track:
-                    del track["id"]
-
                 new_tracks.append(track)
 
         result = self.insert(new_tracks) + self.update(existing_tracks)
 
         return result
 
-    def validate(self, tracks):
-        track_ids = utils.get_ids(tracks)
-
+    def validate(self, track_ids):
         query = self.table.get_all(*track_ids).pluck("id")
 
         with Connection() as conn:
             result = conn.run(query)
 
-        result_ids = utils.get_ids(result)
+        result_ids = {x.get("id") for x in result}
 
         invalid_ids = []
 

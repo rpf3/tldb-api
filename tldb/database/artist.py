@@ -1,8 +1,8 @@
 from flask_smorest import abort
 from rethinkdb import r
 
-from tldb.database import utils
 from tldb.database.connection import DATABASE_NAME, Connection
+from tldb.models import ArtistSchema
 
 TABLE_NAME = "artist"
 DEFAULT_LIMIT = 10
@@ -16,12 +16,15 @@ class Artist:
         if id is None:
             query = self.table.limit(DEFAULT_LIMIT)
         else:
-            query = self.table.get(id)
+            query = self.table.get_all(id)
 
         with Connection() as conn:
             result = conn.run(query)
 
-        return result
+        schema = ArtistSchema(many=True)
+        artists = schema.load(result)
+
+        return artists
 
     def get_all(self, ids):
         query = self.table.get_all(*ids)
@@ -29,7 +32,10 @@ class Artist:
         with Connection() as conn:
             result = conn.run(query)
 
-        return list(result)
+        schema = ArtistSchema(many=True)
+        artists = schema.load(result)
+
+        return artists
 
     def search_name(self, name):
         query = self.table.get_all(name.lower(), index="name")
@@ -41,7 +47,9 @@ class Artist:
 
     def insert(self, artists):
         if len(artists) > 0:
-            query = self.table.insert(artists)
+            schema = ArtistSchema(many=True, exclude=["id"])
+            json_data = schema.dump(artists)
+            query = self.table.insert(json_data)
 
             with Connection() as conn:
                 result = conn.run(query)
@@ -54,14 +62,20 @@ class Artist:
 
     def update(self, artists):
         if len(artists) > 0:
-            self.validate(artists)
+            artist_ids = {x.id for x in artists}
 
-            query = self.table.insert(artists, conflict="update")
+            print(artist_ids)
+            print(artists)
+
+            self.validate(artist_ids)
+
+            schema = ArtistSchema(many=True)
+            json_data = schema.dump(artists)
+
+            query = self.table.insert(json_data, conflict="update")
 
             with Connection() as conn:
                 conn.run(query)
-
-            artist_ids = utils.get_ids(artists)
         else:
             artist_ids = []
 
@@ -72,27 +86,22 @@ class Artist:
         existing_artists = []
 
         for artist in artists:
-            if artist.get("id") is not None:
+            if artist.id is not None:
                 existing_artists.append(artist)
             else:
-                if "id" in artist:
-                    del artist["id"]
-
                 new_artists.append(artist)
 
         result = self.insert(new_artists) + self.update(existing_artists)
 
         return result
 
-    def validate(self, artists):
-        artist_ids = utils.get_ids(artists)
-
+    def validate(self, artist_ids):
         query = self.table.get_all(*artist_ids).pluck("id")
 
         with Connection() as conn:
             result = conn.run(query)
 
-        result_ids = utils.get_ids(result)
+        result_ids = {x.get("id") for x in result}
 
         invalid_ids = []
 
