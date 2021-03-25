@@ -2,7 +2,12 @@ from flask import Flask
 from flask_cors import CORS
 from flask_smorest import Api
 
-from tldb.api import artists, imports, tracklists, tracks
+from tldb.api import (
+    artist_blueprint,
+    import_blueprint,
+    track_blueprint,
+    tracklist_blueprint,
+)
 
 app = Flask(__name__)
 app.config["API_TITLE"] = "tldb"
@@ -18,7 +23,7 @@ api = Api(app)
 
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-api.register_blueprint(artists.blp)
-api.register_blueprint(tracks.blp)
-api.register_blueprint(tracklists.blp)
-api.register_blueprint(imports.blp)
+api.register_blueprint(artist_blueprint)
+api.register_blueprint(track_blueprint)
+api.register_blueprint(tracklist_blueprint)
+api.register_blueprint(import_blueprint)
