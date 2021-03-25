@@ -20,24 +20,7 @@ class TrackTable:
             track_query = self.table.get_all(id)
 
         if verbose is True:
-            final_query = (
-                track_query.merge(get_artist)
-                .merge(get_remix)
-                .merge(
-                    lambda track: {
-                        "versions": r.branch(
-                            track.has_fields("versions"),
-                            r.db(DATABASE_NAME)
-                            .table(TABLE_NAME)
-                            .get_all(r.args(track["versions"]))
-                            .merge(get_artist)
-                            .merge(get_remix)
-                            .coerce_to("array"),
-                            [],
-                        )
-                    }
-                )
-            )
+            final_query = track_query.merge(get_artist).merge(get_remix)
         else:
             final_query = track_query
 
