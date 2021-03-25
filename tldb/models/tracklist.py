@@ -1,6 +1,7 @@
-from marshmallow import Schema, fields, post_load
+from marshmallow import fields, post_load
 
 from tldb.models import ArtistSchema, TrackSchema
+from tldb.models.schema import BaseSchema
 
 
 class IndexedTrack:
@@ -10,7 +11,7 @@ class IndexedTrack:
         self.track = track
 
 
-class IndexedTrackSchema(Schema):
+class IndexedTrackSchema(BaseSchema):
     id = fields.String(description="The ID of the track")
     index = fields.Integer(description="The index in the tracklist")
     track = fields.Nested(TrackSchema, allow_none=True)
@@ -34,7 +35,7 @@ class Tracklist:
         self.artists = artists
 
 
-class TracklistSchema(Schema):
+class TracklistSchema(BaseSchema):
     id = fields.String(description="The ID of the tracklist")
     name = fields.String(description="The name of the tracklist")
     artist_ids = fields.List(
