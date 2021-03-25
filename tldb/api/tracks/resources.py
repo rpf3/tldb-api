@@ -47,7 +47,7 @@ class Tracks(MethodView):
 
 
 @blp.route("/<string:id>")
-class Track(MethodView):
+class TracksById(MethodView):
     def __init__(self):
         self.table = TrackTable()
 
