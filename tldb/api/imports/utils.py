@@ -1,11 +1,10 @@
 import copy
 import json
 
-from tldb.api.tracklists.models import CreateIndexedTrackSchema
-from tldb.api.tracks.models import CreateTrackSchema
 from tldb.database.artist import Artist as ArtistTable
 from tldb.database.track import Track as TrackTable
 from tldb.database.tracklist import Tracklist as TracklistTable
+from tldb.models import IndexedTrackSchema, TrackSchema
 
 
 def create_artists(artists):
@@ -56,7 +55,7 @@ def create_track_model(track, artist_map):
 
         remix["artistId"] = artist_map.get(remix_artist_name)
 
-    result = CreateTrackSchema().load(track_copy)
+    result = TrackSchema().load(track_copy)
 
     return result
 
@@ -94,7 +93,7 @@ def create_original_tracks(tracks, artist_map):
 
     database_response = table.upsert(models)
 
-    schema = CreateTrackSchema()
+    schema = TrackSchema()
 
     for track in database_response:
         model = schema.load(track)
@@ -143,7 +142,7 @@ def create_remix_tracks(tracks, artist_map, original_track_map):
 
     database_response = table.upsert(models)
 
-    schema = CreateTrackSchema()
+    schema = TrackSchema()
 
     for track in database_response:
         model = schema.load(track)
@@ -211,7 +210,7 @@ def create_tracklists(tracklists, artist_map, track_map):
 
         tracks = []
 
-        track_schema = CreateIndexedTrackSchema()
+        track_schema = IndexedTrackSchema()
 
         for track in tracklist.get("tracks"):
             track_model = create_track_model(track, artist_map)

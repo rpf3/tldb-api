@@ -1,11 +1,11 @@
 from flask_smorest import abort
 from rethinkdb import r
 
-from tldb.database import utils
 from tldb.database.artist import get_artist, get_artists
 from tldb.database.connection import DATABASE_NAME, Connection
 from tldb.database.track import TABLE_NAME as TRACK_TABLE_NAME
 from tldb.database.track import get_remix
+from tldb.models import TracklistSchema
 
 TABLE_NAME = "tracklist"
 DEFAULT_LIMIT = 10
@@ -20,7 +20,7 @@ class Tracklist:
         if id is None:
             query = self.table.skip(skip).limit(take)
         else:
-            query = self.table.get(id)
+            query = self.table.get_all(id)
 
         if verbose is True:
             final_query = query.merge(get_artists).merge(
@@ -41,7 +41,10 @@ class Tracklist:
         with Connection() as conn:
             result = conn.run(final_query)
 
-        return result
+        schema = TracklistSchema(many=True)
+        tracklists = schema.load(result)
+
+        return tracklists
 
     def get_all(self, ids):
         query = self.table.get_all(*ids)
@@ -49,11 +52,16 @@ class Tracklist:
         with Connection() as conn:
             result = conn.run(query)
 
-        return list(result)
+        schema = TracklistSchema(many=True)
+        tracklists = schema.load(result)
+
+        return tracklists
 
     def insert(self, tracklists):
         if len(tracklists) > 0:
-            query = self.table.insert(tracklists)
+            schema = TracklistSchema(many=True, exclude=["id"])
+            json_data = schema.dump(tracklists)
+            query = self.table.insert(json_data)
 
             with Connection() as conn:
                 result = conn.run(query)
@@ -66,14 +74,17 @@ class Tracklist:
 
     def update(self, tracklists):
         if len(tracklists) > 0:
-            self.validate(tracklists)
+            tracklist_ids = {x.id for x in tracklists}
 
-            query = self.table.insert(tracklists, conflict="update")
+            self.validate(tracklist_ids)
+
+            schema = TracklistSchema(many=True)
+            json_data = schema.dump(tracklists)
+
+            query = self.table.insert(json_data, conflict="update")
 
             with Connection() as conn:
                 conn.run(query)
-
-            tracklist_ids = utils.get_ids(tracklists)
         else:
             tracklist_ids = []
 
@@ -84,27 +95,22 @@ class Tracklist:
         existing_tracklists = []
 
         for tracklist in tracklists:
-            if tracklist.get("id") is not None:
+            if tracklist.id is not None:
                 existing_tracklists.append(tracklist)
             else:
-                if "id" in tracklist:
-                    del tracklist["id"]
-
                 new_tracklists.append(tracklist)
 
         result = self.insert(new_tracklists) + self.update(existing_tracklists)
 
         return result
 
-    def validate(self, tracklists):
-        tracklist_ids = utils.get_ids(tracklists)
-
+    def validate(self, tracklist_ids):
         query = self.table.get_all(*tracklist_ids).pluck("id")
 
         with Connection() as conn:
             result = conn.run(query)
 
-        result_ids = utils.get_ids(result)
+        result_ids = {x.get("id") for x in result}
 
         invalid_ids = []
 

@@ -1,9 +1,11 @@
 from flask import request
 from flask.views import MethodView
+from flask_smorest import Blueprint
 
-from tldb.api.tracklists import models
-from tldb.api.tracklists.models import blp
 from tldb.database.tracklist import Tracklist as TracklistTable
+from tldb.models import TracklistSchema
+
+blp = Blueprint("tracklists", "tracklists", url_prefix="/tracklists")
 
 
 @blp.route("")
@@ -11,7 +13,7 @@ class Tracklists(MethodView):
     def __init__(self):
         self.table = TracklistTable()
 
-    @blp.response(200, models.GetTracklistSchema(many=True))
+    @blp.response(200, TracklistSchema(many=True))
     def get(self):
         """
         List all tracklists
@@ -22,25 +24,26 @@ class Tracklists(MethodView):
 
         database_response = self.table.get(skip=skip, take=take, verbose=verbose)
 
-        return list(database_response)
+        return database_response
 
-    @blp.arguments(models.CreateTracklistSchema)
-    def post(self, post_data):
+    @blp.arguments(TracklistSchema(exclude=["id"]))
+    @blp.response(200, TracklistSchema)
+    def post(self, tracklist):
         """
         Create a new tracklist
         """
-        database_response = self.table.insert(post_data)
-        tracklist_id = database_response[0]
+        tracklists = [tracklist]
+        database_response = self.table.insert(tracklists)
 
-        return tracklist_id
+        return database_response[0]
 
-    @blp.arguments(models.UpdateTracklistSchema(many=True))
-    @blp.response(200, models.GetTracklistSchema(many=True))
-    def patch(self, patch_data):
+    @blp.arguments(TracklistSchema(many=True))
+    @blp.response(200, TracklistSchema(many=True))
+    def patch(self, tracklists):
         """
         Create or update a set of tracklists
         """
-        database_response = self.table.upsert(patch_data)
+        database_response = self.table.upsert(tracklists)
 
         return database_response
 
@@ -50,7 +53,7 @@ class Tracklist(MethodView):
     def __init__(self):
         self.table = TracklistTable()
 
-    @blp.response(200, models.GetTracklistSchema)
+    @blp.response(200, TracklistSchema)
     def get(self, id):
         """
         Get a single tracklist
@@ -59,19 +62,18 @@ class Tracklist(MethodView):
 
         database_response = self.table.get(id, verbose=verbose)
 
-        return database_response
+        return database_response[0]
 
-    @blp.arguments(models.CreateTracklistSchema)
-    @blp.response(200, models.GetTracklistSchema)
-    def put(self, put_data, id):
+    @blp.arguments(TracklistSchema(exclude=["id"]))
+    @blp.response(200, TracklistSchema)
+    def put(self, tracklist, id):
         """
         Update a single tracklist
         """
-        schema = models.CreateTracklistSchema()
-        json_data = schema.dump(put_data)
+        tracklist.id = id
 
-        json_data["id"] = id
+        tracklists = [tracklist]
 
-        database_response = self.table.update([json_data])
+        database_response = self.table.update(tracklists)
 
         return database_response[0]
