@@ -25,14 +25,15 @@ class TracklistTable:
         if verbose is True:
             final_query = query.merge(get_artists).merge(
                 lambda tracklist: {
-                    "tracks": r.expr(tracklist["tracks"])
-                    .merge(
-                        lambda track: r.db(DATABASE_NAME)
-                        .table(TRACK_TABLE_NAME)
-                        .get(track["id"])
+                    "tracks": r.expr(tracklist["tracks"]).merge(
+                        lambda track: {
+                            "track": r.db(DATABASE_NAME)
+                            .table(TRACK_TABLE_NAME)
+                            .get(track["id"])
+                            .merge(get_artist)
+                            .merge(get_remix)
+                        }
                     )
-                    .merge(get_artist)
-                    .merge(get_remix)
                 }
             )
         else:
