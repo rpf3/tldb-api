@@ -64,9 +64,6 @@ class ArtistTable:
         if len(artists) > 0:
             artist_ids = {x.id for x in artists}
 
-            print(artist_ids)
-            print(artists)
-
             self.validate(artist_ids)
 
             schema = ArtistSchema(many=True)
