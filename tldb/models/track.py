@@ -46,4 +46,4 @@ class TrackSchema(Schema):
 
 class WriteTrackSchema(TrackSchema):
     class Meta:
-        exclude = ["id"]
+        exclude = ["id", "artist", "remix.artist"]
