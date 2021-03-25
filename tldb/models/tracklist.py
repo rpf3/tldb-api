@@ -20,6 +20,11 @@ class IndexedTrackSchema(Schema):
         return IndexedTrack(**data)
 
 
+class WriteIndexedTrackSchema(IndexedTrackSchema):
+    class Meta:
+        exclude = ["track"]
+
+
 class Tracklist:
     def __init__(self, name=None, artist_ids=None, tracks=None, id=None, artists=None):
         self.id = id
@@ -44,5 +49,7 @@ class TracklistSchema(Schema):
 
 
 class WriteTracklistSchema(TracklistSchema):
+    tracks = fields.List(fields.Nested(WriteIndexedTrackSchema), allow_none=True)
+
     class Meta:
-        exclude = ["id", "artists", "tracks.track"]
+        exclude = ["id", "artists"]

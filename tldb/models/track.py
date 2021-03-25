@@ -23,6 +23,11 @@ class RemixSchema(Schema):
         unknown = EXCLUDE
 
 
+class WriteRemixSchema(RemixSchema):
+    class Meta:
+        exclude = ["artist"]
+
+
 class Track:
     def __init__(self, name, artist_id, remix=None, id=None, artist=None):
         self.id = id
@@ -45,5 +50,7 @@ class TrackSchema(Schema):
 
 
 class WriteTrackSchema(TrackSchema):
+    remix = fields.Nested(WriteRemixSchema, allow_none=True)
+
     class Meta:
-        exclude = ["id", "artist", "remix.artist"]
+        exclude = ["id", "artist"]
