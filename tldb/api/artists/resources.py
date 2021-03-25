@@ -2,7 +2,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 
 from tldb.database import ArtistTable
-from tldb.models import ArtistSchema
+from tldb.models import ArtistSchema, WriteArtistSchema
 
 blp = Blueprint("artists", "artists", url_prefix="/artists")
 
@@ -21,7 +21,7 @@ class Artists(MethodView):
 
         return database_response
 
-    @blp.arguments(ArtistSchema(exclude=["id"]))
+    @blp.arguments(WriteArtistSchema)
     @blp.response(200, ArtistSchema)
     def post(self, artist):
         """
@@ -57,7 +57,7 @@ class ArtistsById(MethodView):
 
         return database_response[0]
 
-    @blp.arguments(ArtistSchema(exclude=["id"]))
+    @blp.arguments(WriteArtistSchema)
     @blp.response(200, ArtistSchema)
     def put(self, artist, id):
         """

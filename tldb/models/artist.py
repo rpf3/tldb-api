@@ -14,3 +14,8 @@ class ArtistSchema(Schema):
     @post_load
     def create_artist(self, data, **kwargs):
         return Artist(**data)
+
+
+class WriteArtistSchema(ArtistSchema):
+    class Meta:
+        exclude = ["id"]

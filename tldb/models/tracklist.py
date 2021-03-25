@@ -35,3 +35,8 @@ class TracklistSchema(Schema):
     @post_load
     def create_tracklist(self, data, **kwargs):
         return Tracklist(**data)
+
+
+class WriteTracklistSchema(TracklistSchema):
+    class Meta:
+        exclude = ["id"]
