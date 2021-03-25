@@ -2,7 +2,7 @@ from flask_smorest import abort
 from rethinkdb import r
 
 from tldb.database.connection import DATABASE_NAME, Connection
-from tldb.models import ArtistSchema
+from tldb.models import ArtistSchema, WriteArtistSchema
 
 TABLE_NAME = "artist"
 DEFAULT_LIMIT = 10
@@ -47,7 +47,7 @@ class ArtistTable:
 
     def insert(self, artists):
         if len(artists) > 0:
-            schema = ArtistSchema(many=True, exclude=["id"])
+            schema = WriteArtistSchema(many=True)
             json_data = schema.dump(artists)
             query = self.table.insert(json_data)
 

@@ -3,7 +3,7 @@ from rethinkdb import r
 
 from tldb.database.artist import get_artist
 from tldb.database.connection import DATABASE_NAME, Connection
-from tldb.models import TrackSchema
+from tldb.models import TrackSchema, WriteTrackSchema
 
 TABLE_NAME = "track"
 DEFAULT_LIMIT = 10
@@ -103,7 +103,7 @@ class TrackTable:
 
     def insert(self, tracks):
         if len(tracks) > 0:
-            schema = TrackSchema(many=True, exclude=["id"])
+            schema = WriteTrackSchema(many=True)
             json_data = schema.dump(tracks)
             query = self.table.insert(json_data)
 

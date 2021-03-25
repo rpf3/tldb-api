@@ -36,3 +36,8 @@ class TrackSchema(Schema):
     @post_load
     def create_track(self, data, **kwargs):
         return Track(**data)
+
+
+class WriteTrackSchema(TrackSchema):
+    class Meta:
+        exclude = ["id"]
