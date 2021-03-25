@@ -45,4 +45,4 @@ class TracklistSchema(Schema):
 
 class WriteTracklistSchema(TracklistSchema):
     class Meta:
-        exclude = ["id"]
+        exclude = ["id", "artists", "tracks.track"]
