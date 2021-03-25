@@ -9,7 +9,7 @@ TABLE_NAME = "track"
 DEFAULT_LIMIT = 10
 
 
-class Track:
+class TrackTable:
     def __init__(self):
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 

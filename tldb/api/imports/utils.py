@@ -1,9 +1,7 @@
 import copy
 import json
 
-from tldb.database.artist import Artist as ArtistTable
-from tldb.database.track import Track as TrackTable
-from tldb.database.tracklist import Tracklist as TracklistTable
+from tldb.database import ArtistTable, TracklistTable, TrackTable
 from tldb.models import IndexedTrackSchema, TrackSchema
 
 

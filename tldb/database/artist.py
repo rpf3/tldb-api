@@ -8,7 +8,7 @@ TABLE_NAME = "artist"
 DEFAULT_LIMIT = 10
 
 
-class Artist:
+class ArtistTable:
     def __init__(self):
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
