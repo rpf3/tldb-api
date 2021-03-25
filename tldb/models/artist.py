@@ -1,4 +1,6 @@
-from marshmallow import Schema, fields, post_load
+from marshmallow import fields, post_load
+
+from tldb.models.schema import BaseSchema
 
 
 class Artist:
@@ -7,7 +9,7 @@ class Artist:
         self.name = name
 
 
-class ArtistSchema(Schema):
+class ArtistSchema(BaseSchema):
     id = fields.String(description="The ID of the artist")
     name = fields.String(description="The name of the artist")
 

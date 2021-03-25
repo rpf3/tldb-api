@@ -1,6 +1,7 @@
-from marshmallow import EXCLUDE, Schema, fields, post_load
+from marshmallow import EXCLUDE, fields, post_load
 
 from tldb.models.artist import ArtistSchema
+from tldb.models.schema import BaseSchema
 
 
 class Remix:
@@ -10,7 +11,7 @@ class Remix:
         self.artist = artist
 
 
-class RemixSchema(Schema):
+class RemixSchema(BaseSchema):
     name = fields.String(description="The name of the remix")
     artist_id = fields.String(description="The ID of the artist", data_key="artistId")
     artist = fields.Nested(ArtistSchema, allow_none=True)
@@ -37,7 +38,7 @@ class Track:
         self.artist = artist
 
 
-class TrackSchema(Schema):
+class TrackSchema(BaseSchema):
     id = fields.String(description="The ID of the track")
     name = fields.String(description="The name of the track")
     artist_id = fields.String(description="The ID of the artist", data_key="artistId")
