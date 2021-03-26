@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 
 from tldb.database import TrackTable
-from tldb.models import TrackSchema, WriteTrackSchema
+from tldb.models import TrackSchema, TrackWriteSchema
 
 blp = Blueprint("tracks", "tracks", url_prefix="/tracks")
 
@@ -24,7 +24,7 @@ class Tracks(MethodView):
 
         return database_response
 
-    @blp.arguments(WriteTrackSchema)
+    @blp.arguments(TrackWriteSchema)
     @blp.response(200, TrackSchema)
     def post(self, track):
         """
@@ -62,7 +62,7 @@ class TracksById(MethodView):
 
         return database_response[0]
 
-    @blp.arguments(WriteTrackSchema)
+    @blp.arguments(TrackWriteSchema)
     @blp.response(200, TrackSchema)
     def put(self, track, id):
         """

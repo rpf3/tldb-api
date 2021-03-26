@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 
 from tldb.database import TracklistTable
-from tldb.models import TracklistSchema, WriteTracklistSchema
+from tldb.models import TracklistSchema, TracklistWriteSchema
 
 blp = Blueprint("tracklists", "tracklists", url_prefix="/tracklists")
 
@@ -26,7 +26,7 @@ class Tracklists(MethodView):
 
         return database_response
 
-    @blp.arguments(WriteTracklistSchema)
+    @blp.arguments(TracklistWriteSchema)
     @blp.response(200, TracklistSchema)
     def post(self, tracklist):
         """
@@ -64,7 +64,7 @@ class TracklistsById(MethodView):
 
         return database_response[0]
 
-    @blp.arguments(WriteTracklistSchema)
+    @blp.arguments(TracklistWriteSchema)
     @blp.response(200, TracklistSchema)
     def put(self, tracklist, id):
         """

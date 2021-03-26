@@ -13,8 +13,7 @@ class Remix:
 
 class RemixSchema(BaseSchema):
     name = fields.String(description="The name of the remix")
-    artist_id = fields.String(description="The ID of the artist", data_key="artistId")
-    artist = fields.Nested(ArtistSchema, allow_none=True)
+    artist = fields.Nested(ArtistSchema)
 
     @post_load
     def create_remix(self, data, **kwargs):
@@ -24,7 +23,7 @@ class RemixSchema(BaseSchema):
         unknown = EXCLUDE
 
 
-class WriteRemixSchema(RemixSchema):
+class RemixWriteSchema(RemixSchema):
     class Meta:
         exclude = ["artist"]
 
@@ -50,8 +49,8 @@ class TrackSchema(BaseSchema):
         return Track(**data)
 
 
-class WriteTrackSchema(TrackSchema):
-    remix = fields.Nested(WriteRemixSchema, allow_none=True)
+class TrackWriteSchema(TrackSchema):
+    remix = fields.Nested(RemixWriteSchema, allow_none=True)
 
     class Meta:
         exclude = ["id", "artist"]
