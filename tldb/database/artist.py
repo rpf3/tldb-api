@@ -111,17 +111,16 @@ class ArtistTable:
 
 
 def get_artist(obj):
-    result = {"artist": r.db(DATABASE_NAME).table(TABLE_NAME).get(obj["artistId"])}
+    result = {"artist": r.db(DATABASE_NAME).table(TABLE_NAME).get(obj["artist"]["id"])}
 
     return result
 
 
 def get_artists(obj):
     result = {
-        "artists": r.db(DATABASE_NAME)
-        .table(TABLE_NAME)
-        .get_all(r.args(obj["artistIds"]))
-        .coerce_to("array")
+        "artists": obj["artists"].merge(
+            lambda artist: r.db(DATABASE_NAME).table(TABLE_NAME).get(artist["id"])
+        )
     }
 
     return result

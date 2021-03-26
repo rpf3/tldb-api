@@ -1,13 +1,12 @@
 from marshmallow import EXCLUDE, fields, post_load
 
-from tldb.models.artist import ArtistSchema
+from tldb.models.artist import ArtistIdSchema, ArtistSchema
 from tldb.models.schema import BaseSchema
 
 
 class Remix:
-    def __init__(self, name, artist_id, artist=None):
+    def __init__(self, name, artist):
         self.name = name
-        self.artist_id = artist_id
         self.artist = artist
 
 
@@ -24,25 +23,22 @@ class RemixSchema(BaseSchema):
 
 
 class RemixWriteSchema(RemixSchema):
-    class Meta:
-        exclude = ["artist"]
+    artist = fields.Nested(ArtistIdSchema)
 
 
 class Track:
-    def __init__(self, name, artist_id, remix=None, id=None, artist=None):
+    def __init__(self, name, artist, remix=None, id=None):
         self.id = id
-        self.artist_id = artist_id
+        self.artist = artist
         self.name = name
         self.remix = remix
-        self.artist = artist
 
 
 class TrackSchema(BaseSchema):
     id = fields.String(description="The ID of the track")
     name = fields.String(description="The name of the track")
-    artist_id = fields.String(description="The ID of the artist", data_key="artistId")
+    artist = fields.Nested(ArtistSchema)
     remix = fields.Nested(RemixSchema, allow_none=True)
-    artist = fields.Nested(ArtistSchema, allow_none=True)
 
     @post_load
     def create_track(self, data, **kwargs):
@@ -50,7 +46,8 @@ class TrackSchema(BaseSchema):
 
 
 class TrackWriteSchema(TrackSchema):
+    artist = fields.Nested(ArtistIdSchema)
     remix = fields.Nested(RemixWriteSchema, allow_none=True)
 
     class Meta:
-        exclude = ["id", "artist"]
+        exclude = ["id"]

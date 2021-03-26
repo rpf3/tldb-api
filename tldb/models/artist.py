@@ -4,7 +4,7 @@ from tldb.models.schema import BaseSchema
 
 
 class Artist:
-    def __init__(self, name, id=None):
+    def __init__(self, name=None, id=None):
         self.id = id
         self.name = name
 
@@ -21,3 +21,8 @@ class ArtistSchema(BaseSchema):
 class ArtistWriteSchema(ArtistSchema):
     class Meta:
         exclude = ["id"]
+
+
+class ArtistIdSchema(ArtistSchema):
+    class Meta:
+        fields = ["id"]

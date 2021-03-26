@@ -1,7 +1,8 @@
 from marshmallow import fields, post_load
 
-from tldb.models import ArtistSchema, TrackSchema
+from tldb.models.artist import ArtistIdSchema, ArtistSchema
 from tldb.models.schema import BaseSchema
+from tldb.models.track import TrackSchema
 
 
 class IndexedTrack:
@@ -27,10 +28,9 @@ class IndexedTrackWriteSchema(IndexedTrackSchema):
 
 
 class Tracklist:
-    def __init__(self, name=None, artist_ids=None, tracks=None, id=None, artists=None):
+    def __init__(self, name=None, artists=None, tracks=None, id=None):
         self.id = id
         self.name = name
-        self.artist_ids = artist_ids
         self.tracks = tracks
         self.artists = artists
 
@@ -38,11 +38,8 @@ class Tracklist:
 class TracklistSchema(BaseSchema):
     id = fields.String(description="The ID of the tracklist")
     name = fields.String(description="The name of the tracklist")
-    artist_ids = fields.List(
-        fields.String(description="The ID of the artist"), data_key="artistIds"
-    )
+    artists = fields.List(fields.Nested(ArtistSchema))
     tracks = fields.List(fields.Nested(IndexedTrackSchema), allow_none=True)
-    artists = fields.List(fields.Nested(ArtistSchema), allow_none=True)
 
     @post_load
     def create_tracklist(self, data, **kwargs):
@@ -50,7 +47,8 @@ class TracklistSchema(BaseSchema):
 
 
 class TracklistWriteSchema(TracklistSchema):
+    artists = fields.List(fields.Nested(ArtistIdSchema))
     tracks = fields.List(fields.Nested(IndexedTrackWriteSchema), allow_none=True)
 
     class Meta:
-        exclude = ["id", "artists"]
+        exclude = ["id"]
