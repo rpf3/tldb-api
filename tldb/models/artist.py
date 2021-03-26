@@ -18,6 +18,6 @@ class ArtistSchema(BaseSchema):
         return Artist(**data)
 
 
-class WriteArtistSchema(ArtistSchema):
+class ArtistWriteSchema(ArtistSchema):
     class Meta:
         exclude = ["id"]

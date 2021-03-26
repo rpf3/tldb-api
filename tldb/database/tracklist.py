@@ -5,7 +5,7 @@ from tldb.database.artist import get_artist, get_artists
 from tldb.database.connection import DATABASE_NAME, Connection
 from tldb.database.track import TABLE_NAME as TRACK_TABLE_NAME
 from tldb.database.track import get_remix
-from tldb.models import TracklistSchema, WriteTracklistSchema
+from tldb.models import TracklistSchema, TracklistWriteSchema
 
 TABLE_NAME = "tracklist"
 DEFAULT_LIMIT = 10
@@ -60,7 +60,7 @@ class TracklistTable:
 
     def insert(self, tracklists):
         if len(tracklists) > 0:
-            schema = WriteTracklistSchema(many=True)
+            schema = TracklistWriteSchema(many=True)
             json_data = schema.dump(tracklists)
             query = self.table.insert(json_data)
 

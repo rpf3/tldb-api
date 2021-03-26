@@ -21,7 +21,7 @@ class IndexedTrackSchema(BaseSchema):
         return IndexedTrack(**data)
 
 
-class WriteIndexedTrackSchema(IndexedTrackSchema):
+class IndexedTrackWriteSchema(IndexedTrackSchema):
     class Meta:
         exclude = ["track"]
 
@@ -49,8 +49,8 @@ class TracklistSchema(BaseSchema):
         return Tracklist(**data)
 
 
-class WriteTracklistSchema(TracklistSchema):
-    tracks = fields.List(fields.Nested(WriteIndexedTrackSchema), allow_none=True)
+class TracklistWriteSchema(TracklistSchema):
+    tracks = fields.List(fields.Nested(IndexedTrackWriteSchema), allow_none=True)
 
     class Meta:
         exclude = ["id", "artists"]
