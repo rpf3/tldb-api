@@ -2,20 +2,18 @@ from marshmallow import fields, post_load
 
 from tldb.models.artist import ArtistIdSchema, ArtistSchema
 from tldb.models.schema import BaseSchema
-from tldb.models.track import TrackSchema
+from tldb.models.track import TrackIdSchema, TrackSchema
 
 
 class IndexedTrack:
-    def __init__(self, id, index, track=None):
-        self.id = id
+    def __init__(self, index, track):
         self.index = index
         self.track = track
 
 
 class IndexedTrackSchema(BaseSchema):
-    id = fields.String(description="The ID of the track")
     index = fields.Integer(description="The index in the tracklist")
-    track = fields.Nested(TrackSchema, allow_none=True)
+    track = fields.Nested(TrackSchema)
 
     @post_load
     def create_indexed_track(self, data, **kwargs):
@@ -23,8 +21,7 @@ class IndexedTrackSchema(BaseSchema):
 
 
 class IndexedTrackWriteSchema(IndexedTrackSchema):
-    class Meta:
-        exclude = ["track"]
+    track = fields.Nested(TrackIdSchema)
 
 
 class Tracklist:

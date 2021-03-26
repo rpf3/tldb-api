@@ -27,7 +27,7 @@ class RemixWriteSchema(RemixSchema):
 
 
 class Track:
-    def __init__(self, name, artist, remix=None, id=None):
+    def __init__(self, name=None, artist=None, remix=None, id=None):
         self.id = id
         self.artist = artist
         self.name = name
@@ -51,3 +51,8 @@ class TrackWriteSchema(TrackSchema):
 
     class Meta:
         exclude = ["id"]
+
+
+class TrackIdSchema(TrackSchema):
+    class Meta:
+        fields = ["id"]

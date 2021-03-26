@@ -29,7 +29,7 @@ class TracklistTable:
                         lambda track: {
                             "track": r.db(DATABASE_NAME)
                             .table(TRACK_TABLE_NAME)
-                            .get(track["id"])
+                            .get(track["track"]["id"])
                             .merge(get_artist)
                             .merge(get_remix)
                         }
