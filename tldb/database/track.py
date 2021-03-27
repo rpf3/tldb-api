@@ -45,12 +45,12 @@ class TrackTable:
 
     def get_exact_match(self, name, artistId, remix_name=None, remix_artist_id=None):
         query = self.table.get_all(name.lower(), index="name").filter(
-            r.row["artistId"].eq(artistId)
+            r.row["artist"]["id"].eq(artistId)
         )
 
         if remix_artist_id is not None:
             query = query.filter(
-                lambda track: track["remix"]["artistId"].eq(remix_artist_id)
+                lambda track: track["remix"]["artist"]["id"].eq(remix_artist_id)
                 and track["remix"]["name"].eq(remix_name)
             )
 

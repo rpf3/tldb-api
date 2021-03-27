@@ -1,13 +1,15 @@
 from flask.views import MethodView
+from flask_smorest import Blueprint
 
-from tldb.api.imports import models, utils
-from tldb.api.imports.models import blp
-from tldb.models import TracklistSchema
+from tldb.api.imports import utils
+from tldb.models import TracklistImportSchema, TracklistSchema
+
+blp = Blueprint("imports", "imports", url_prefix="/imports")
 
 
 @blp.route("")
 class Imports(MethodView):
-    @blp.arguments(models.ImportTracklistSchema(many=True))
+    @blp.arguments(TracklistImportSchema(many=True))
     @blp.response(200, TracklistSchema(many=True))
     def post(self, post_data):
         """
@@ -18,17 +20,17 @@ class Imports(MethodView):
 
         # Get the artist and tracks from each tracklist
         for tracklist in post_data:
-            artists.extend(tracklist.get("artists"))
-            tracks.extend(tracklist.get("tracks"))
+            artists.extend(tracklist.artists)
+            tracks.extend([x.track for x in tracklist.tracks])
 
         # Get the artist from each track in the tracklists
         for track in tracks:
-            artists.append(track.get("artist"))
+            artists.append(track.artist)
 
-            remix = track.get("remix")
+            remix = track.remix
 
             if remix is not None:
-                remix_artist = remix.get("artist")
+                remix_artist = remix.artist
 
                 if remix_artist:
                     artists.append(remix_artist)

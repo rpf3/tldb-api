@@ -1,8 +1,6 @@
 import copy
-import json
 
 from tldb.database import ArtistTable, TracklistTable, TrackTable
-from tldb.models import IndexedTrackSchema, TrackSchema
 
 
 def create_artists(artists):
@@ -13,49 +11,35 @@ def create_artists(artists):
     artist_names = set()
 
     for artist in artists:
-        artist_name = artist.get("name")
-
-        if artist_name not in artist_names:
-            search_results = table.search_name(artist_name)
+        if artist.name not in artist_names:
+            search_results = table.search_name(artist.name)
 
             if len(search_results) == 0:
                 api_model.append(artist)
             else:
-                artist_map[artist_name] = search_results[0].get("id")
+                artist_map[artist.name] = search_results[0].get("id")
 
-            artist_names.add(artist_name)
+            artist_names.add(artist.name)
 
     database_response = table.upsert(api_model)
 
     for artist in database_response:
-        artist_map[artist.get("name")] = artist.get("id")
+        artist_map[artist.name] = artist.id
 
     return artist_map
-
-
-def get_track_hash(track):
-    result = hash(json.dumps(track, sort_keys=True))
-
-    return result
 
 
 def create_track_model(track, artist_map):
     track_copy = copy.deepcopy(track)
 
-    artist_name = track_copy.get("artist").get("name")
+    track_copy.artist.id = artist_map.get(track_copy.artist.name)
 
-    track_copy["artistId"] = artist_map.get(artist_name)
-
-    remix = track_copy.get("remix")
+    remix = track_copy.remix
 
     if remix is not None:
-        remix_artist_name = remix.get("artist").get("name")
+        remix.artist.id = artist_map.get(remix.artist.name)
 
-        remix["artistId"] = artist_map.get(remix_artist_name)
-
-    result = TrackSchema().load(track_copy)
-
-    return result
+    return track_copy
 
 
 def create_original_tracks(tracks, artist_map):
@@ -66,22 +50,18 @@ def create_original_tracks(tracks, artist_map):
     track_map = {}
 
     for track in tracks:
-        remix = track.get("remix")
-
-        if remix is None:
+        if track.remix is None:
             model = create_track_model(track, artist_map)
         else:
             track_copy = copy.deepcopy(track)
-            track_copy["remix"] = None
+            track_copy.remix = None
 
             model = create_track_model(track_copy, artist_map)
 
-        track_hash = get_track_hash(model)
+        track_hash = model.get_unique_hash()
 
         if track_hash not in hashes:
-            search_result = table.get_exact_match(
-                model.get("name"), model.get("artistId")
-            )
+            search_result = table.get_exact_match(model.name, model.artist.id)
 
             if search_result is None:
                 models.append(model)
@@ -91,13 +71,10 @@ def create_original_tracks(tracks, artist_map):
 
     database_response = table.upsert(models)
 
-    schema = TrackSchema()
-
     for track in database_response:
-        model = schema.load(track)
-        track_hash = get_track_hash(model)
+        track_hash = track.get_unique_hash()
 
-        track_map[track_hash] = track.get("id")
+        track_map[track_hash] = track.id
 
     return track_map
 
@@ -110,29 +87,25 @@ def create_remix_tracks(tracks, artist_map, original_track_map):
     track_map = {}
 
     for track in tracks:
-        remix = track.get("remix")
-
-        if remix is not None:
+        if track.remix is not None:
             model = create_track_model(track, artist_map)
-            model_remix = model.get("remix")
-
-            track_hash = get_track_hash(model)
+            track_hash = model.get_unique_hash()
 
             if track_hash not in hashes:
                 search_result = table.get_exact_match(
-                    model.get("name"),
-                    model.get("artistId"),
-                    model_remix.get("name"),
-                    model_remix.get("artistId"),
+                    model.name,
+                    model.artist.id,
+                    model.remix.name,
+                    model.remix.artist.id,
                 )
 
                 if search_result is None:
                     original = copy.deepcopy(track)
-                    original["remix"] = None
+                    original.remix = None
                     original_model = create_track_model(original, artist_map)
-                    original_hash = get_track_hash(original_model)
+                    original_hash = original_model.get_unique_hash()
 
-                    model["originalId"] = original_track_map[original_hash]
+                    model.original_id = original_track_map[original_hash]
 
                     models.append(model)
                 else:
@@ -140,50 +113,17 @@ def create_remix_tracks(tracks, artist_map, original_track_map):
 
     database_response = table.upsert(models)
 
-    schema = TrackSchema()
-
     for track in database_response:
-        model = schema.load(track)
-        track_hash = get_track_hash(model)
+        track_hash = track.get_unique_hash()
 
-        track_map[track_hash] = track.get("id")
+        track_map[track_hash] = track.id
 
     return track_map
-
-
-def update_original_tracks(original_track_map):
-    table = TrackTable()
-
-    track_ids = original_track_map.values()
-    search_results = table.get_versions_by_original(track_ids)
-
-    version_map = {}
-
-    for search_result in search_results:
-        result_id = search_result.get("id")
-        original_id = search_result.get("originalId")
-
-        if original_id in version_map:
-            version_map[original_id].append(result_id)
-        else:
-            version_map[original_id] = [result_id]
-
-    tracks = table.get_all(track_ids)
-
-    for track in tracks:
-        track_id = track.get("id")
-
-        if track_id in version_map:
-            track["versions"] = version_map[track_id]
-
-    table.update(tracks)
 
 
 def create_tracks(tracks, artist_map):
     original_track_map = create_original_tracks(tracks, artist_map)
     remix_track_map = create_remix_tracks(tracks, artist_map, original_track_map)
-
-    update_original_tracks(original_track_map)
 
     track_map = {**original_track_map, **remix_track_map}
 
@@ -196,30 +136,15 @@ def create_tracklists(tracklists, artist_map, track_map):
     api_model = []
 
     for tracklist in tracklists:
-        artist_ids = []
+        for artist in tracklist.artists:
+            artist.id = artist_map.get(artist.name)
 
-        for artist in tracklist.get("artists"):
-            artist_name = artist.get("name")
-            artist_id = artist_map.get(artist_name)
-
-            artist_ids.append(artist_id)
-
-        tracklist["artistIds"] = artist_ids
-
-        tracks = []
-
-        track_schema = IndexedTrackSchema()
-
-        for track in tracklist.get("tracks"):
+        for indexed_track in tracklist.tracks:
+            track = indexed_track.track
             track_model = create_track_model(track, artist_map)
-            track_hash = get_track_hash(track_model)
-            track_id = track_map.get(track_hash)
+            track_hash = track_model.get_unique_hash()
 
-            model = {"id": track_id, "index": track.get("index")}
-
-            tracks.append(track_schema.load(model))
-
-        tracklist["tracks"] = tracks
+            track.id = track_map.get(track_hash)
 
         api_model.append(tracklist)
 

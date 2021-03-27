@@ -1,8 +1,8 @@
 from marshmallow import fields, post_load
 
-from tldb.models.artist import ArtistIdSchema, ArtistSchema
+from tldb.models.artist import ArtistIdSchema, ArtistSchema, ArtistWriteSchema
 from tldb.models.schema import BaseSchema
-from tldb.models.track import TrackIdSchema, TrackSchema
+from tldb.models.track import TrackIdSchema, TrackImportSchema, TrackSchema
 
 
 class IndexedTrack:
@@ -22,6 +22,10 @@ class IndexedTrackSchema(BaseSchema):
 
 class IndexedTrackWriteSchema(IndexedTrackSchema):
     track = fields.Nested(TrackIdSchema)
+
+
+class IndexedTrackImportSchema(IndexedTrackSchema):
+    track = fields.Nested(TrackImportSchema)
 
 
 class Tracklist:
@@ -46,6 +50,14 @@ class TracklistSchema(BaseSchema):
 class TracklistWriteSchema(TracklistSchema):
     artists = fields.List(fields.Nested(ArtistIdSchema))
     tracks = fields.List(fields.Nested(IndexedTrackWriteSchema), allow_none=True)
+
+    class Meta:
+        exclude = ["id"]
+
+
+class TracklistImportSchema(TracklistSchema):
+    artists = fields.List(fields.Nested(ArtistWriteSchema))
+    tracks = fields.List(fields.Nested(IndexedTrackImportSchema))
 
     class Meta:
         exclude = ["id"]
