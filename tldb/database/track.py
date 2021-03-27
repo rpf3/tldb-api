@@ -151,7 +151,7 @@ class TrackTable:
 
 def get_remix(obj):
     result = {
-        "remix": r.branch(obj["remix"].eq(None), obj["remix"], get_artist(obj["remix"]))
+        "remix": r.branch(obj.has_fields("remix"), get_artist(obj["remix"]), None)
     }
 
     return result
