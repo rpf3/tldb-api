@@ -1,4 +1,4 @@
-from marshmallow import fields, post_load
+from marshmallow import EXCLUDE, fields, post_load
 
 from tldb.models.schema import BaseSchema
 
@@ -21,6 +21,7 @@ class ArtistSchema(BaseSchema):
 class ArtistWriteSchema(ArtistSchema):
     class Meta:
         exclude = ["id"]
+        unknown = EXCLUDE
 
 
 class ArtistIdSchema(ArtistSchema):

@@ -1,4 +1,4 @@
-from marshmallow import fields, post_load
+from marshmallow import EXCLUDE, fields, post_load
 
 from tldb.models.artist import ArtistIdSchema, ArtistSchema, ArtistWriteSchema
 from tldb.models.schema import BaseSchema
@@ -26,6 +26,9 @@ class IndexedTrackWriteSchema(IndexedTrackSchema):
 
 class IndexedTrackImportSchema(IndexedTrackSchema):
     track = fields.Nested(TrackImportSchema)
+
+    class Meta:
+        unknown = EXCLUDE
 
 
 class Tracklist:
@@ -61,3 +64,4 @@ class TracklistImportSchema(TracklistSchema):
 
     class Meta:
         exclude = ["id"]
+        unknown = EXCLUDE

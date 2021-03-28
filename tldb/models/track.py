@@ -20,9 +20,6 @@ class RemixSchema(BaseSchema):
     def create_remix(self, data, **kwargs):
         return Remix(**data)
 
-    class Meta:
-        unknown = EXCLUDE
-
 
 class RemixWriteSchema(RemixSchema):
     artist = fields.Nested(ArtistIdSchema)
@@ -30,6 +27,9 @@ class RemixWriteSchema(RemixSchema):
 
 class RemixImportSchema(RemixSchema):
     artist = fields.Nested(ArtistWriteSchema)
+
+    class Meta:
+        unknown = EXCLUDE
 
 
 class Track:
@@ -85,3 +85,4 @@ class TrackImportSchema(TrackSchema):
 
     class Meta:
         exclude = ["id"]
+        unknown = EXCLUDE
