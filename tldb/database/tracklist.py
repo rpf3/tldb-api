@@ -58,6 +58,25 @@ class TracklistTable:
 
         return tracklists
 
+    def get_all_by_artist(self, artist_id, skip=0, take=DEFAULT_LIMIT):
+        query = (
+            self.table.filter(
+                lambda tracklist: tracklist["artists"]
+                .map(lambda artist: artist["id"])
+                .contains(artist_id)
+            )
+            .skip(skip)
+            .limit(take)
+        )
+
+        with Connection() as conn:
+            result = conn.run(query)
+
+        schema = TracklistSchema(many=True)
+        tracklists = schema.load(result)
+
+        return tracklists
+
     def insert(self, tracklists):
         if len(tracklists) > 0:
             schema = TracklistWriteSchema(many=True)
