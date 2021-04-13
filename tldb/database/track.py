@@ -43,6 +43,21 @@ class TrackTable:
 
         return tracks
 
+    def get_all_by_artist(self, artist_id, skip=0, take=DEFAULT_LIMIT):
+        query = (
+            self.table.filter(lambda track: track["artist"]["id"].eq(artist_id))
+            .skip(skip)
+            .limit(take)
+        )
+
+        with Connection() as conn:
+            result = conn.run(query)
+
+        schema = TrackSchema(many=True)
+        tracks = schema.load(result)
+
+        return tracks
+
     def get_exact_match(self, name, artistId, remix_name=None, remix_artist_id=None):
         query = self.table.get_all(name.lower(), index="name").filter(
             r.row["artist"]["id"].eq(artistId)
