@@ -1,8 +1,9 @@
+from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from tldb.database import ArtistTable
-from tldb.models import ArtistSchema, ArtistWriteSchema
+from tldb.database import ArtistTable, TracklistTable
+from tldb.models import ArtistSchema, ArtistWriteSchema, TracklistSchema
 
 blp = Blueprint("artists", "artists", url_prefix="/artists")
 
@@ -70,3 +71,21 @@ class ArtistsById(MethodView):
         database_response = self.table.update(artists)
 
         return database_response[0]
+
+
+@blp.route("/<string:id>/tracklists")
+class TracklistsByArtistId(MethodView):
+    def __init__(self):
+        self.table = TracklistTable()
+
+    @blp.response(200, TracklistSchema(many=True))
+    def get(self, id):
+        """
+        Get all tracklists by a single artist
+        """
+        skip = int(request.args.get("skip", 0))
+        take = int(request.args.get("take", 10))
+
+        database_response = self.table.get_all_by_artist(id, skip=skip, take=take)
+
+        return database_response
