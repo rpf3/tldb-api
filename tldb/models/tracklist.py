@@ -32,10 +32,13 @@ class IndexedTrackImportSchema(IndexedTrackSchema):
 
 
 class Tracklist:
-    def __init__(self, name=None, date=None, artists=None, tracks=None, id=None):
+    def __init__(
+        self, name=None, date=None, series=None, artists=None, tracks=None, id=None
+    ):
         self.id = id
         self.name = name
         self.date = date
+        self.series = series
         self.tracks = tracks
         self.artists = artists
 
@@ -44,6 +47,7 @@ class TracklistSchema(BaseSchema):
     id = fields.String(description="The ID of the tracklist")
     name = fields.String(description="The name of the tracklist")
     date = fields.Date(description="The date of the tracklist")
+    series = fields.String(description="The series of the tracklist, if any")
     artists = fields.List(fields.Nested(ArtistSchema))
     tracks = fields.List(fields.Nested(IndexedTrackSchema), allow_none=True)
 
