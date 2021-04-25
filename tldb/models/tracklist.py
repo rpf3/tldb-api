@@ -31,6 +31,19 @@ class IndexedTrackImportSchema(IndexedTrackSchema):
         unknown = EXCLUDE
 
 
+class Series:
+    def __init__(self, name):
+        self.name = name
+
+
+class SeriesSchema(BaseSchema):
+    name = fields.String(description="The name of the tracklist series")
+
+    @post_load
+    def create_series(self, data, **kwargs):
+        return Series(**data)
+
+
 class Tracklist:
     def __init__(
         self,
@@ -55,9 +68,7 @@ class TracklistSchema(BaseSchema):
     id = fields.String(description="The ID of the tracklist")
     name = fields.String(description="The name of the tracklist")
     date = fields.Date(description="The date of the tracklist")
-    series = fields.String(
-        description="The series of the tracklist, if any", allow_none=True
-    )
+    series = fields.Nested(SeriesSchema, allow_none=True)
     artists = fields.List(fields.Nested(ArtistSchema))
     tracks = fields.List(fields.Nested(IndexedTrackSchema), allow_none=True)
     tags = fields.List(fields.String(), description="A list of tags")
