@@ -55,7 +55,9 @@ class TracklistSchema(BaseSchema):
     id = fields.String(description="The ID of the tracklist")
     name = fields.String(description="The name of the tracklist")
     date = fields.Date(description="The date of the tracklist")
-    series = fields.String(description="The series of the tracklist, if any")
+    series = fields.String(
+        description="The series of the tracklist, if any", allow_none=True
+    )
     artists = fields.List(fields.Nested(ArtistSchema))
     tracks = fields.List(fields.Nested(IndexedTrackSchema), allow_none=True)
     tags = fields.List(fields.String(), description="A list of tags")
