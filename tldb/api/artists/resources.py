@@ -103,7 +103,10 @@ class TracksByArtistId(MethodView):
         """
         skip = int(request.args.get("skip", 0))
         take = int(request.args.get("take", 10))
+        verbose = request.args.get("verbose") == "1"
 
-        database_response = self.table.get_all_by_artist(id, skip=skip, take=take)
+        database_response = self.table.get_all_by_artist(
+            id, skip=skip, take=take, verbose=verbose
+        )
 
         return database_response

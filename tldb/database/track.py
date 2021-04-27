@@ -43,15 +43,20 @@ class TrackTable:
 
         return tracks
 
-    def get_all_by_artist(self, artist_id, skip=0, take=DEFAULT_LIMIT):
-        query = (
-            self.table.filter(lambda track: track["artist"]["id"].eq(artist_id))
-            .skip(skip)
-            .limit(take)
+    def get_all_by_artist(self, artist_id, skip=0, take=DEFAULT_LIMIT, verbose=False):
+        filter_query = self.table.filter(
+            lambda track: track["artist"]["id"].eq(artist_id)
         )
 
+        if verbose is True:
+            track_query = filter_query.merge(get_artist).merge(get_remix)
+        else:
+            track_query = filter_query
+
+        final_query = track_query.skip(skip).limit(take)
+
         with Connection() as conn:
-            result = conn.run(query)
+            result = conn.run(final_query)
 
         schema = TrackSchema(many=True)
         tracks = schema.load(result)
