@@ -16,13 +16,25 @@ class TracklistTable:
     def __init__(self):
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
-    def get(self, id=None, skip=0, take=DEFAULT_LIMIT, verbose=False):
+    def get(self, id=None, skip=0, take=DEFAULT_LIMIT, verbose=False, search=None):
         if id is None:
-            query = (
-                self.table.order_by(index=r.desc(DEFAULT_SORT_INDEX))
-                .skip(skip)
-                .limit(take)
-            )
+            if (search is None) or (search.strip() == ""):
+                query = (
+                    self.table.order_by(index=r.desc(DEFAULT_SORT_INDEX))
+                    .skip(skip)
+                    .limit(take)
+                )
+            else:
+                query = (
+                    self.table.order_by(index=r.desc(DEFAULT_SORT_INDEX))
+                    .filter(
+                        lambda tracklist: tracklist["name"].match(
+                            f"(?i).*{search.strip()}.*"
+                        )
+                    )
+                    .skip(skip)
+                    .limit(take)
+                )
         else:
             query = self.table.get_all(id)
 

@@ -21,8 +21,11 @@ class Tracklists(MethodView):
         skip = int(request.args.get("skip", 0))
         take = int(request.args.get("take", 10))
         verbose = request.args.get("verbose") == "1"
+        query = request.args.get("query")
 
-        database_response = self.table.get(skip=skip, take=take, verbose=verbose)
+        database_response = self.table.get(
+            skip=skip, take=take, verbose=verbose, search=query
+        )
 
         return database_response
 
