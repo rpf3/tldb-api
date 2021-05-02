@@ -18,7 +18,7 @@ class Artists(MethodView):
         """
         List all artists
         """
-        database_response = self.table.get()
+        database_response = self.table.search(skip=0, take=10, query=None)
 
         return database_response
 
@@ -54,7 +54,9 @@ class ArtistsById(MethodView):
         """
         Get a single artist
         """
-        database_response = self.table.get(id)
+        ids = [id]
+
+        database_response = self.table.get(ids)
 
         return database_response[0]
 

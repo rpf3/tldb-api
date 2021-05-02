@@ -8,75 +8,53 @@ TABLE_NAME = "artist"
 DEFAULT_LIMIT = 10
 
 
-class ArtistTable:
+class Table:
     def __init__(self):
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
-    def get(self, id=None):
-        if id is None:
-            query = self.table.limit(DEFAULT_LIMIT)
-        else:
-            query = self.table.get_all(id)
+    def get(self, ids):
+        db_query = self.table.get_all(*ids)
 
         with Connection() as conn:
-            result = conn.run(query)
+            result = conn.run(db_query)
 
         schema = ArtistSchema(many=True)
         artists = schema.load(result)
 
         return artists
-
-    def get_all(self, ids):
-        query = self.table.get_all(*ids)
-
-        with Connection() as conn:
-            result = conn.run(query)
-
-        schema = ArtistSchema(many=True)
-        artists = schema.load(result)
-
-        return artists
-
-    def search_name(self, name):
-        query = self.table.get_all(name.lower(), index="name")
-
-        with Connection() as conn:
-            result = conn.run(query)
-
-        return list(result)
 
     def insert(self, artists):
         if len(artists) > 0:
             schema = ArtistWriteSchema(many=True)
             json_data = schema.dump(artists)
-            query = self.table.insert(json_data)
+            db_query = self.table.insert(json_data)
 
             with Connection() as conn:
-                result = conn.run(query)
+                result = conn.run(db_query)
 
             artist_ids = result["generated_keys"]
         else:
             artist_ids = []
 
-        return self.get_all(artist_ids)
+        return self.get(artist_ids)
 
     def update(self, artists):
         if len(artists) > 0:
             artist_ids = {x.id for x in artists}
 
-            self.validate(artist_ids)
+            self._validate(artist_ids)
 
             schema = ArtistSchema(many=True)
             json_data = schema.dump(artists)
 
-            query = self.table.insert(json_data, conflict="update")
+            db_query = self.table.insert(json_data, conflict="update")
 
             with Connection() as conn:
-                conn.run(query)
+                conn.run(db_query)
         else:
             artist_ids = []
 
-        return self.get_all(artist_ids)
+        return self.get(artist_ids)
 
     def upsert(self, artists):
         new_artists = []
@@ -92,17 +70,35 @@ class ArtistTable:
 
         return result
 
-    def validate(self, artist_ids):
-        query = self.table.get_all(*artist_ids).pluck("id")
+    def search(self, query, skip, take):
+        search_string = (query or "").strip().lower()
+
+        if search_string == "":
+            db_query = self.table
+        else:
+            db_query = self.table.get_all(search_string, index="name")
+
+        db_query = db_query.skip(skip).limit(take)
 
         with Connection() as conn:
-            result = conn.run(query)
+            result = conn.run(db_query)
+
+        schema = ArtistSchema(many=True)
+        artists = schema.load(result)
+
+        return artists
+
+    def _validate(self, ids):
+        db_query = self.table.get_all(*ids).pluck("id")
+
+        with Connection() as conn:
+            result = conn.run(db_query)
 
         result_ids = {x.get("id") for x in result}
 
         invalid_ids = []
 
-        for id in artist_ids:
+        for id in ids:
             if id not in result_ids:
                 invalid_ids.append(id)
 

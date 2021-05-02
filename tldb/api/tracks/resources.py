@@ -20,7 +20,9 @@ class Tracks(MethodView):
         """
         verbose = request.args.get("verbose") == "1"
 
-        database_response = self.table.get(verbose=verbose)
+        database_response = self.table.search(
+            skip=0, take=10, verbose=verbose, query=None
+        )
 
         return database_response
 
@@ -58,7 +60,9 @@ class TracksById(MethodView):
         """
         verbose = request.args.get("verbose") == "1"
 
-        database_response = self.table.get(id, verbose=verbose)
+        ids = [id]
+
+        database_response = self.table.get(ids, verbose=verbose)
 
         return database_response[0]
 

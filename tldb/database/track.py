@@ -6,136 +6,58 @@ from tldb.database.connection import DATABASE_NAME, Connection
 from tldb.models import TrackSchema, TrackWriteSchema
 
 TABLE_NAME = "track"
-DEFAULT_LIMIT = 10
 
 
-class TrackTable:
+class Table:
     def __init__(self):
         self.table = r.db(DATABASE_NAME).table(TABLE_NAME)
 
-    def get(self, id=None, verbose=False):
-        if id is None:
-            track_query = self.table.limit(DEFAULT_LIMIT)
-        else:
-            track_query = self.table.get_all(id)
+    def get(self, ids, verbose):
+        db_query = self.table.get_all(*ids)
 
         if verbose is True:
-            final_query = track_query.merge(get_artist).merge(get_remix)
-        else:
-            final_query = track_query
+            db_query = self._create_verbose_query(db_query)
 
         with Connection() as conn:
-            result = conn.run(final_query)
+            result = conn.run(db_query)
 
         schema = TrackSchema(many=True)
         tracks = schema.load(result)
 
         return tracks
-
-    def get_all(self, ids):
-        query = self.table.get_all(*ids)
-
-        with Connection() as conn:
-            result = conn.run(query)
-
-        schema = TrackSchema(many=True)
-        tracks = schema.load(result)
-
-        return tracks
-
-    def get_all_by_artist(self, artist_id, skip=0, take=DEFAULT_LIMIT, verbose=False):
-        filter_query = self.table.filter(
-            lambda track: track["artist"]["id"].eq(artist_id)
-        )
-
-        if verbose is True:
-            track_query = filter_query.merge(get_artist).merge(get_remix)
-        else:
-            track_query = filter_query
-
-        final_query = track_query.skip(skip).limit(take)
-
-        with Connection() as conn:
-            result = conn.run(final_query)
-
-        schema = TrackSchema(many=True)
-        tracks = schema.load(result)
-
-        return tracks
-
-    def get_exact_match(self, name, artistId, remix_name=None, remix_artist_id=None):
-        query = self.table.get_all(name.lower(), index="name").filter(
-            r.row["artist"]["id"].eq(artistId)
-        )
-
-        if remix_artist_id is not None:
-            query = query.filter(
-                lambda track: track["remix"]["artist"]["id"].eq(remix_artist_id)
-                and track["remix"]["name"].eq(remix_name)
-            )
-
-        with Connection() as conn:
-            cursor = conn.run(query)
-
-        results = list(cursor)
-
-        if len(results) > 0:
-            result = results[0]
-        else:
-            result = None
-
-        return result
-
-    def get_versions_by_original(self, ids):
-        query = self.table.get_all(*ids, index="originalId")
-
-        with Connection() as conn:
-            cursor = conn.run(query)
-
-        result = list(cursor)
-
-        return result
-
-    def search_name(self, name):
-        query = self.table.get_all(name.lower(), index="name")
-
-        with Connection() as conn:
-            result = conn.run(query)
-
-        return list(result)
 
     def insert(self, tracks):
         if len(tracks) > 0:
             schema = TrackWriteSchema(many=True)
             json_data = schema.dump(tracks)
-            query = self.table.insert(json_data)
+            db_query = self.table.insert(json_data)
 
             with Connection() as conn:
-                result = conn.run(query)
+                result = conn.run(db_query)
 
             track_ids = result["generated_keys"]
         else:
             track_ids = []
 
-        return self.get_all(track_ids)
+        return self.get(track_ids, False)
 
     def update(self, tracks):
         if len(tracks) > 0:
             track_ids = {x.id for x in tracks}
 
-            self.validate(track_ids)
+            self._validate(track_ids)
 
             schema = TrackSchema(many=True)
             json_data = schema.dump(tracks)
 
-            query = self.table.insert(json_data, conflict="update")
+            db_query = self.table.insert(json_data, conflict="update")
 
             with Connection() as conn:
-                conn.run(query)
+                conn.run(db_query)
         else:
             track_ids = []
 
-        return self.get_all(track_ids)
+        return self.get(track_ids, False)
 
     def upsert(self, tracks):
         new_tracks = []
@@ -151,22 +73,89 @@ class TrackTable:
 
         return result
 
-    def validate(self, track_ids):
-        query = self.table.get_all(*track_ids).pluck("id")
+    def search(self, query, skip, take, verbose):
+        search_string = (query or "").strip().lower()
+
+        if search_string == "":
+            db_query = self.table
+        else:
+            db_query = self.table.get_all(search_string, index="name")
+
+        db_query = db_query.skip(skip).limit(take)
+
+        if verbose is True:
+            db_query = self._create_verbose_query(db_query)
 
         with Connection() as conn:
-            result = conn.run(query)
+            result = conn.run(db_query)
+
+        schema = TrackSchema(many=True)
+        tracks = schema.load(result)
+
+        return tracks
+
+    def _validate(self, ids):
+        db_query = self.table.get_all(*ids).pluck("id")
+
+        with Connection() as conn:
+            result = conn.run(db_query)
 
         result_ids = {x.get("id") for x in result}
 
         invalid_ids = []
 
-        for id in track_ids:
+        for id in ids:
             if id not in result_ids:
                 invalid_ids.append(id)
 
         if len(invalid_ids) > 0:
             abort(400, message="Invalid track IDs")
+
+    def _create_verbose_query(self, db_query):
+        verbose_query = db_query.merge(get_artist).merge(get_remix)
+
+        return verbose_query
+
+    def get_all_by_artist(self, artist_id, skip, take, verbose):
+        def filter_query(track):
+            return track["artist"]["id"].eq(artist_id)
+
+        db_query = self.table.filter(filter_query).skip(skip).limit(take)
+
+        if verbose is True:
+            db_query = self._create_verbose_query(db_query)
+
+        with Connection() as conn:
+            result = conn.run(db_query)
+
+        schema = TrackSchema(many=True)
+        tracks = schema.load(result)
+
+        return tracks
+
+    def get_exact_match(self, name, artistId, remix_name, remix_artist_id):
+        db_query = self.table.get_all(name.lower(), index="name").filter(
+            r.row["artist"]["id"].eq(artistId)
+        )
+
+        if remix_artist_id is not None:
+            db_query = db_query.filter(
+                lambda track: track["remix"]["artist"]["id"].eq(remix_artist_id)
+                and track["remix"]["name"].eq(remix_name)
+            )
+
+        with Connection() as conn:
+            result = conn.run(db_query)
+
+        schema = TrackSchema(many=True)
+        tracks = schema.load(result)
+
+        if len(tracks) > 0:
+            track = tracks[0]
+        else:
+            track = None
+
+        return track
 
 
 def get_remix(obj):

@@ -12,12 +12,12 @@ def create_artists(artists):
 
     for artist in artists:
         if artist.name not in artist_names:
-            search_results = table.search_name(artist.name)
+            search_results = table.search(artist.name)
 
             if len(search_results) == 0:
                 api_model.append(artist)
             else:
-                artist_map[artist.name] = search_results[0].get("id")
+                artist_map[artist.name] = search_results[0].id
 
             artist_names.add(artist.name)
 
@@ -61,13 +61,15 @@ def create_original_tracks(tracks, artist_map):
         track_hash = model.get_unique_hash()
 
         if track_hash not in hashes:
-            search_result = table.get_exact_match(model.name, model.artist.id)
+            search_result = table.get_exact_match(
+                model.name, model.artist.id, None, None
+            )
 
             if search_result is None:
                 models.append(model)
                 hashes.add(track_hash)
             else:
-                track_map[track_hash] = search_result.get("id")
+                track_map[track_hash] = search_result.id
 
     database_response = table.upsert(models)
 
@@ -109,7 +111,7 @@ def create_remix_tracks(tracks, artist_map, original_track_map):
 
                     models.append(model)
                 else:
-                    track_map[track_hash] = search_result.get("id")
+                    track_map[track_hash] = search_result.id
 
     database_response = table.upsert(models)
 
