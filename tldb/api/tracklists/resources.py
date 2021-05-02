@@ -23,8 +23,8 @@ class Tracklists(MethodView):
         verbose = request.args.get("verbose") == "1"
         query = request.args.get("query")
 
-        database_response = self.table.get(
-            skip=skip, take=take, verbose=verbose, search=query
+        database_response = self.table.search(
+            skip=skip, take=take, verbose=verbose, query=query
         )
 
         return database_response
@@ -63,7 +63,9 @@ class TracklistsById(MethodView):
         """
         verbose = request.args.get("verbose") == "1"
 
-        database_response = self.table.get(id, verbose=verbose)
+        ids = [id]
+
+        database_response = self.table.get(ids, verbose=verbose)
 
         return database_response[0]
 
