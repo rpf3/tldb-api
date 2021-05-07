@@ -1,6 +1,6 @@
 import copy
 
-from tldb import database
+from tldb import database, models
 
 
 def create_artists(artists):
@@ -10,9 +10,11 @@ def create_artists(artists):
     artist_map = {}
     artist_names = set()
 
+    search_params = models.SearchParamsSchema().load({})
+
     for artist in artists:
         if artist.name not in artist_names:
-            search_results = table.search(artist.name)
+            search_results = table.search(artist.name, search_params)
 
             if len(search_results) == 0:
                 api_model.append(artist)
