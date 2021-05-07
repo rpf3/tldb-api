@@ -2,14 +2,9 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
+from tldb.api import utils
 from tldb.database import ArtistTable, TracklistTable, TrackTable
-from tldb.models import (
-    ArtistSchema,
-    ArtistWriteSchema,
-    SearchParamsSchema,
-    TracklistSchema,
-    TrackSchema,
-)
+from tldb.models import ArtistSchema, ArtistWriteSchema, TracklistSchema, TrackSchema
 
 blp = Blueprint("artists", "artists", url_prefix="/artists")
 
@@ -24,9 +19,7 @@ class Artists(MethodView):
         """
         List all artists
         """
-        params_schema = SearchParamsSchema()
-
-        params = params_schema.load({})
+        params = utils.parse_search_args(request)
 
         database_response = self.table.search(query=None, params=params)
 
@@ -95,14 +88,7 @@ class TracklistsByArtistId(MethodView):
         """
         Get all tracklists by a single artist
         """
-        params_schema = SearchParamsSchema()
-
-        params = params_schema.load(
-            {
-                "skip": request.args.get("skip"),
-                "take": request.args.get("take"),
-            }
-        )
+        params = utils.parse_search_args(request)
 
         database_response = self.table.get_all_by_artist(id, params)
 
@@ -119,15 +105,7 @@ class TracksByArtistId(MethodView):
         """
         Get all tracklists by a single artist
         """
-        params_schema = SearchParamsSchema()
-
-        params = params_schema.load(
-            {
-                "skip": request.args.get("skip"),
-                "take": request.args.get("take"),
-                "verbose": request.args.get("verbose") == "1",
-            }
-        )
+        params = utils.parse_search_args(request)
 
         database_response = self.table.get_all_by_artist(id, params)
 

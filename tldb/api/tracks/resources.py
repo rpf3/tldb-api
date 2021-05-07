@@ -2,8 +2,9 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
+from tldb.api import utils
 from tldb.database import TrackTable
-from tldb.models import SearchParamsSchema, TrackSchema, TrackWriteSchema
+from tldb.models import TrackSchema, TrackWriteSchema
 
 blp = Blueprint("tracks", "tracks", url_prefix="/tracks")
 
@@ -18,13 +19,7 @@ class Tracks(MethodView):
         """
         List all tracks
         """
-        params_schema = SearchParamsSchema()
-
-        params = params_schema.load(
-            {
-                "verbose": request.args.get("verbose") == "1",
-            }
-        )
+        params = utils.parse_search_args(request)
 
         database_response = self.table.search(query=None, params=params)
 
