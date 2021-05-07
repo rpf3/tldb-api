@@ -70,7 +70,7 @@ class Table:
 
         return result
 
-    def search(self, query, skip, take):
+    def search(self, query, params):
         search_string = (query or "").strip().lower()
 
         if search_string == "":
@@ -78,7 +78,7 @@ class Table:
         else:
             db_query = self.table.get_all(search_string, index="name")
 
-        db_query = db_query.skip(skip).limit(take)
+        db_query = db_query.skip(params.skip).limit(params.take)
 
         with Connection() as conn:
             result = conn.run(db_query)

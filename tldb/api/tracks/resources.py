@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 
 from tldb.database import TrackTable
-from tldb.models import TrackSchema, TrackWriteSchema
+from tldb.models import SearchParamsSchema, TrackSchema, TrackWriteSchema
 
 blp = Blueprint("tracks", "tracks", url_prefix="/tracks")
 
@@ -18,11 +18,15 @@ class Tracks(MethodView):
         """
         List all tracks
         """
-        verbose = request.args.get("verbose") == "1"
+        params_schema = SearchParamsSchema()
 
-        database_response = self.table.search(
-            skip=0, take=10, verbose=verbose, query=None
+        params = params_schema.load(
+            {
+                "verbose": request.args.get("verbose") == "1",
+            }
         )
+
+        database_response = self.table.search(query=None, params=params)
 
         return database_response
 

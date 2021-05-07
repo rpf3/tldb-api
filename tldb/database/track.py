@@ -73,7 +73,7 @@ class Table:
 
         return result
 
-    def search(self, query, skip, take, verbose):
+    def search(self, query, params):
         search_string = (query or "").strip().lower()
 
         if search_string == "":
@@ -81,9 +81,9 @@ class Table:
         else:
             db_query = self.table.get_all(search_string, index="name")
 
-        db_query = db_query.skip(skip).limit(take)
+        db_query = db_query.skip(params.skip).limit(params.take)
 
-        if verbose is True:
+        if params.verbose is True:
             db_query = self._create_verbose_query(db_query)
 
         with Connection() as conn:
@@ -116,13 +116,13 @@ class Table:
 
         return verbose_query
 
-    def get_all_by_artist(self, artist_id, skip, take, verbose):
+    def get_all_by_artist(self, artist_id, params):
         def filter_query(track):
             return track["artist"]["id"].eq(artist_id)
 
-        db_query = self.table.filter(filter_query).skip(skip).limit(take)
+        db_query = self.table.filter(filter_query).skip(params.skip).limit(params.take)
 
-        if verbose is True:
+        if params.verbose is True:
             db_query = self._create_verbose_query(db_query)
 
         with Connection() as conn:

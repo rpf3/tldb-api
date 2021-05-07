@@ -76,7 +76,7 @@ class Table:
 
         return result
 
-    def search(self, query, skip, take, verbose):
+    def search(self, query, params):
         search_string = (query or "").strip()
 
         def filter_query(tracklist):
@@ -90,11 +90,11 @@ class Table:
         db_query = (
             self.table.order_by(index=r.desc(DEFAULT_SORT_INDEX))
             .filter(filter_query)
-            .skip(skip)
-            .limit(take)
+            .skip(params.skip)
+            .limit(params.take)
         )
 
-        if verbose is True:
+        if params.verbose is True:
             db_query = self._create_verbose_query(db_query)
 
         with Connection() as conn:
@@ -139,15 +139,15 @@ class Table:
 
         return verbose_query
 
-    def get_all_by_artist(self, artist_id, skip, take):
+    def get_all_by_artist(self, artist_id, params):
         db_query = (
             self.table.filter(
                 lambda tracklist: tracklist["artists"]
                 .map(lambda artist: artist["id"])
                 .contains(artist_id)
             )
-            .skip(skip)
-            .limit(take)
+            .skip(params.skip)
+            .limit(params.take)
         )
 
         with Connection() as conn:

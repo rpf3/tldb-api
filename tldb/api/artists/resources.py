@@ -3,7 +3,13 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 
 from tldb.database import ArtistTable, TracklistTable, TrackTable
-from tldb.models import ArtistSchema, ArtistWriteSchema, TracklistSchema, TrackSchema
+from tldb.models import (
+    ArtistSchema,
+    ArtistWriteSchema,
+    SearchParamsSchema,
+    TracklistSchema,
+    TrackSchema,
+)
 
 blp = Blueprint("artists", "artists", url_prefix="/artists")
 
@@ -18,7 +24,11 @@ class Artists(MethodView):
         """
         List all artists
         """
-        database_response = self.table.search(skip=0, take=10, query=None)
+        params_schema = SearchParamsSchema()
+
+        params = params_schema.load({})
+
+        database_response = self.table.search(query=None, params=params)
 
         return database_response
 
@@ -85,10 +95,16 @@ class TracklistsByArtistId(MethodView):
         """
         Get all tracklists by a single artist
         """
-        skip = int(request.args.get("skip", 0))
-        take = int(request.args.get("take", 10))
+        params_schema = SearchParamsSchema()
 
-        database_response = self.table.get_all_by_artist(id, skip=skip, take=take)
+        params = params_schema.load(
+            {
+                "skip": request.args.get("skip"),
+                "take": request.args.get("take"),
+            }
+        )
+
+        database_response = self.table.get_all_by_artist(id, params)
 
         return database_response
 
@@ -103,12 +119,16 @@ class TracksByArtistId(MethodView):
         """
         Get all tracklists by a single artist
         """
-        skip = int(request.args.get("skip", 0))
-        take = int(request.args.get("take", 10))
-        verbose = request.args.get("verbose") == "1"
+        params_schema = SearchParamsSchema()
 
-        database_response = self.table.get_all_by_artist(
-            id, skip=skip, take=take, verbose=verbose
+        params = params_schema.load(
+            {
+                "skip": request.args.get("skip"),
+                "take": request.args.get("take"),
+                "verbose": request.args.get("verbose") == "1",
+            }
         )
+
+        database_response = self.table.get_all_by_artist(id, params)
 
         return database_response

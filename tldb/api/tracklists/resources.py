@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 
 from tldb.database import TracklistTable
-from tldb.models import TracklistSchema, TracklistWriteSchema
+from tldb.models import SearchParamsSchema, TracklistSchema, TracklistWriteSchema
 
 blp = Blueprint("tracklists", "tracklists", url_prefix="/tracklists")
 
@@ -18,14 +18,19 @@ class Tracklists(MethodView):
         """
         List all tracklists
         """
-        skip = int(request.args.get("skip", 0))
-        take = int(request.args.get("take", 10))
-        verbose = request.args.get("verbose") == "1"
         query = request.args.get("query")
 
-        database_response = self.table.search(
-            skip=skip, take=take, verbose=verbose, query=query
+        params_schema = SearchParamsSchema()
+
+        params = params_schema.load(
+            {
+                "skip": request.args.get("skip"),
+                "take": request.args.get("take"),
+                "verbose": request.args.get("verbose") == "1",
+            }
         )
+
+        database_response = self.table.search(query=query, params=params)
 
         return database_response
 
