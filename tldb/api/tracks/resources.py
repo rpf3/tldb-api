@@ -2,9 +2,8 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
+from tldb import database, models
 from tldb.api import utils
-from tldb.database import TrackTable
-from tldb.models import TrackSchema, TrackWriteSchema
 
 blp = Blueprint("tracks", "tracks", url_prefix="/tracks")
 
@@ -12,9 +11,9 @@ blp = Blueprint("tracks", "tracks", url_prefix="/tracks")
 @blp.route("")
 class Tracks(MethodView):
     def __init__(self):
-        self.table = TrackTable()
+        self.table = database.TrackTable()
 
-    @blp.response(200, TrackSchema(many=True))
+    @blp.response(200, models.TrackSchema(many=True))
     def get(self):
         """
         List all tracks
@@ -25,8 +24,8 @@ class Tracks(MethodView):
 
         return database_response
 
-    @blp.arguments(TrackWriteSchema)
-    @blp.response(200, TrackSchema)
+    @blp.arguments(models.TrackWriteSchema)
+    @blp.response(200, models.TrackSchema)
     def post(self, track):
         """
         Create a new track
@@ -36,8 +35,8 @@ class Tracks(MethodView):
 
         return database_response[0]
 
-    @blp.arguments(TrackSchema(many=True))
-    @blp.response(200, TrackSchema(many=True))
+    @blp.arguments(models.TrackSchema(many=True))
+    @blp.response(200, models.TrackSchema(many=True))
     def patch(self, tracks):
         """
         Create or update a set of tracks
@@ -50,9 +49,9 @@ class Tracks(MethodView):
 @blp.route("/<string:id>")
 class TracksById(MethodView):
     def __init__(self):
-        self.table = TrackTable()
+        self.table = database.TrackTable()
 
-    @blp.response(200, TrackSchema)
+    @blp.response(200, models.TrackSchema)
     def get(self, id):
         """
         Get a single track
@@ -65,8 +64,8 @@ class TracksById(MethodView):
 
         return database_response[0]
 
-    @blp.arguments(TrackWriteSchema)
-    @blp.response(200, TrackSchema)
+    @blp.arguments(models.TrackWriteSchema)
+    @blp.response(200, models.TrackSchema)
     def put(self, track, id):
         """
         Update a single track

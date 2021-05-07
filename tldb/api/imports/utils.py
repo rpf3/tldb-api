@@ -1,10 +1,10 @@
 import copy
 
-from tldb.database import ArtistTable, TracklistTable, TrackTable
+from tldb import database
 
 
 def create_artists(artists):
-    table = ArtistTable()
+    table = database.ArtistTable()
 
     api_model = []
     artist_map = {}
@@ -43,7 +43,7 @@ def create_track_model(track, artist_map):
 
 
 def create_original_tracks(tracks, artist_map):
-    table = TrackTable()
+    table = database.TrackTable()
 
     models = []
     hashes = set()
@@ -82,7 +82,7 @@ def create_original_tracks(tracks, artist_map):
 
 
 def create_remix_tracks(tracks, artist_map, original_track_map):
-    table = TrackTable()
+    table = database.TrackTable()
 
     models = []
     hashes = set()
@@ -133,7 +133,7 @@ def create_tracks(tracks, artist_map):
 
 
 def create_tracklists(tracklists, artist_map, track_map):
-    table = TracklistTable()
+    table = database.TracklistTable()
 
     api_model = []
 

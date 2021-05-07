@@ -1,16 +1,16 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
+from tldb import models
 from tldb.api.imports import utils
-from tldb.models import TracklistImportSchema, TracklistSchema
 
 blp = Blueprint("imports", "imports", url_prefix="/imports")
 
 
 @blp.route("")
 class Imports(MethodView):
-    @blp.arguments(TracklistImportSchema(many=True))
-    @blp.response(200, TracklistSchema(many=True))
+    @blp.arguments(models.TracklistImportSchema(many=True))
+    @blp.response(200, models.TracklistSchema(many=True))
     def post(self, post_data):
         """
         Import a set of tracklists and related data

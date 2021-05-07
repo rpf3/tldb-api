@@ -2,9 +2,8 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
+from tldb import database, models
 from tldb.api import utils
-from tldb.database import ArtistTable, TracklistTable, TrackTable
-from tldb.models import ArtistSchema, ArtistWriteSchema, TracklistSchema, TrackSchema
 
 blp = Blueprint("artists", "artists", url_prefix="/artists")
 
@@ -12,9 +11,9 @@ blp = Blueprint("artists", "artists", url_prefix="/artists")
 @blp.route("")
 class Artists(MethodView):
     def __init__(self):
-        self.table = ArtistTable()
+        self.table = database.ArtistTable()
 
-    @blp.response(200, ArtistSchema(many=True))
+    @blp.response(200, models.ArtistSchema(many=True))
     def get(self):
         """
         List all artists
@@ -25,8 +24,8 @@ class Artists(MethodView):
 
         return database_response
 
-    @blp.arguments(ArtistWriteSchema)
-    @blp.response(200, ArtistSchema)
+    @blp.arguments(models.ArtistWriteSchema)
+    @blp.response(200, models.ArtistSchema)
     def post(self, artist):
         """
         Create a new artist
@@ -36,8 +35,8 @@ class Artists(MethodView):
 
         return database_response[0]
 
-    @blp.arguments(ArtistSchema(many=True))
-    @blp.response(200, ArtistSchema(many=True))
+    @blp.arguments(models.ArtistSchema(many=True))
+    @blp.response(200, models.ArtistSchema(many=True))
     def patch(self, artists):
         """
         Create or update a set of artists
@@ -50,9 +49,9 @@ class Artists(MethodView):
 @blp.route("/<string:id>")
 class ArtistsById(MethodView):
     def __init__(self):
-        self.table = ArtistTable()
+        self.table = database.ArtistTable()
 
-    @blp.response(200, ArtistSchema)
+    @blp.response(200, models.ArtistSchema)
     def get(self, id):
         """
         Get a single artist
@@ -63,8 +62,8 @@ class ArtistsById(MethodView):
 
         return database_response[0]
 
-    @blp.arguments(ArtistWriteSchema)
-    @blp.response(200, ArtistSchema)
+    @blp.arguments(models.ArtistWriteSchema)
+    @blp.response(200, models.ArtistSchema)
     def put(self, artist, id):
         """
         Update a single artist
@@ -81,9 +80,9 @@ class ArtistsById(MethodView):
 @blp.route("/<string:id>/tracklists")
 class TracklistsByArtistId(MethodView):
     def __init__(self):
-        self.table = TracklistTable()
+        self.table = database.TracklistTable()
 
-    @blp.response(200, TracklistSchema(many=True))
+    @blp.response(200, models.TracklistSchema(many=True))
     def get(self, id):
         """
         Get all tracklists by a single artist
@@ -98,9 +97,9 @@ class TracklistsByArtistId(MethodView):
 @blp.route("/<string:id>/tracks")
 class TracksByArtistId(MethodView):
     def __init__(self):
-        self.table = TrackTable()
+        self.table = database.TrackTable()
 
-    @blp.response(200, TrackSchema(many=True))
+    @blp.response(200, models.TrackSchema(many=True))
     def get(self, id):
         """
         Get all tracklists by a single artist
