@@ -73,10 +73,20 @@ class Table:
     def search(self, query, params):
         search_string = (query or "").strip().lower()
 
+        def filter_query(track):
+            if search_string == "":
+                result = True
+            else:
+                result = track["name"].match(f"(?i).*{search_string}.*")
+
+            return result
+
         if search_string == "":
             db_query = self.table
-        else:
+        elif params.exact:
             db_query = self.table.get_all(search_string, index="name")
+        else:
+            db_query = self.table.filter(filter_query)
 
         db_query = db_query.skip(params.skip).limit(params.take)
 

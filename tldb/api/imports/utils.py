@@ -10,7 +10,7 @@ def create_artists(artists):
     artist_map = {}
     artist_names = set()
 
-    search_params = models.SearchParamsSchema().load({})
+    search_params = models.SearchParamsSchema().load({"exact": True})
 
     for artist in artists:
         if artist.name not in artist_names:

@@ -18,9 +18,10 @@ class Artists(MethodView):
         """
         List all artists
         """
+        query = request.args.get("query")
         params = utils.parse_search_args(request)
 
-        database_response = self.table.search(query=None, params=params)
+        database_response = self.table.search(query=query, params=params)
 
         return database_response
 
